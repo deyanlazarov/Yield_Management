@@ -4,6 +4,7 @@ import numpy as np
 from Demo_List_Names import sum_dict_names
 from Preempt_Credit import preempt_credit_names
 from Ratings_Import import import_ratings
+from copy import deepcopy
 
 
 def convert_to_seconds(time):
@@ -35,7 +36,7 @@ def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_li
                 running_imps_total += current_imps
         else:
             pass
-    running_imps.append(running_imps_total - (len(unplaced_spots)*aggressive_factor))
+    running_imps.append(running_imps_total - (len(unplaced_spots) * aggressive_factor))
     return unplaced_spots
 
 
@@ -48,7 +49,7 @@ def place_placed_spots(spots_frame, id_list, demo_frame, first, time_dict, spots
             current_imps_deficit = -spots_frame.iloc[x][8] + (
                 demo_frame.iloc[needed_location][needed_demo + 1] * float(spots_frame.iloc[x][6]))
             spots_list[needed_location].append(
-                (spots_frame.iloc[x][2], spots_frame.iloc[x][10], spots_frame.iloc[x][1], spots_frame.iloc[x][6],
+                (spots_frame.iloc[x][2], spots_frame.iloc[x][10], str(spots_frame.iloc[x][1]) + '**', spots_frame.iloc[x][6],
                  round(current_imps_deficit), 2))
             time_dict[int(spots_frame.iloc[x][3])] = time_dict[int(spots_frame.iloc[x][3])] - spots_frame.iloc[x][6]
             running_imps_total += current_imps_deficit
@@ -109,8 +110,6 @@ def start(daypart, number_of_trials, aggressive_factor):
     # place commercials in
     frame = import_ratings(daypart)
 
-
-
     # Create a blank dictionary and then fill it with the rows from frame and the number of seconds
     # available for commercials
     time_dict = {}
@@ -123,7 +122,6 @@ def start(daypart, number_of_trials, aggressive_factor):
     for x in range(0, len(id_list)):
         spots_lists[x].append(str(id_list[x]) + ' ')
     spots_frame = preempt_credit_names(daypart)
-
 
     first = spots_frame[' Primary Demo'].unique()
 
@@ -138,25 +136,26 @@ def start(daypart, number_of_trials, aggressive_factor):
 
     running_imps = []
 
+    after_placed_imps_shortfall = place_placed_spots(spots_frame, id_list, demo_frame, first, time_dict,
+                                                     spots_lists)
+
+    starter_spots_list = deepcopy(spots_lists)
+
     for trial in range(0, number_of_trials):
-        after_placed_imps_shortfall = place_placed_spots(spots_frame, id_list, demo_frame, first, time_dict,
-                                                         spots_lists)
 
         place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps,
                     trial, True, after_placed_imps_shortfall, aggressive_factor)
 
-        spots_lists = [[] for i in repeat(None, len(id_list))]
+        # spots_lists = [[] for i in repeat(None, len(id_list))]
+        spots_lists = deepcopy(starter_spots_list)
         for ids in id_list:
             time_dict[ids] = 780
-        for x in range(0, len(id_list)):
-            spots_lists[x].append(str(id_list[x]) + ' ')
+        # for x in range(0, len(id_list)):
+           # spots_lists[x].append(str(id_list[x]) + ' ')
 
-    after_placed_imps_shortfall = place_placed_spots(spots_frame, id_list, demo_frame, first, time_dict, spots_lists)
     unplaced_spots = pd.Series(
         place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps,
                     running_imps.index(max(running_imps)), True, after_placed_imps_shortfall, aggressive_factor))
-
-
 
 
     # Save the resulting list to a csv file for placing
