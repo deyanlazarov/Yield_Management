@@ -6,18 +6,8 @@ from kivy.uix.checkbox import CheckBox
 from kivy.uix.label import Label
 from kivy.uix.togglebutton import ToggleButton
 from Start import start
-from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
 from kivy.uix.popup import Popup
 from functools import partial
-
-
-sm = ScreenManager()
-finished_screen = Screen(name='Finished')
-sm.add_widget(finished_screen)
-screen = Screen(name='YieldManagement')
-sm.add_widget(screen)
-
-
 
 
 class YieldManagement(App):
@@ -131,8 +121,7 @@ class Finished(App):
         trial_button = Button(text='Calculate', size_hint=(.90, .2), pos_hint={'x': .05, 'y': .05},
                               background_color=[0, 1, 100, 1], disabled=True)
         box_layout.add_widget(trial_button)
-        finished_screen.add_widget(box_layout)
-        return finished_screen
+
 
 
 if __name__ == "__main__":
