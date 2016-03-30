@@ -90,8 +90,6 @@ class YieldManagement(App):
         else:
             pass
         returned_list = start(spin.text, depth, factor)
-        print returned_list[0]
-        print returned_list[1]
         popup = Popup(title='All Done!',
                       content=Label(
                           text='All finished.  You had ' + str(returned_list[1]) + ' unplaced spots and ' + str(
