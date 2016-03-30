@@ -139,6 +139,7 @@ def start(daypart, number_of_trials, aggressive_factor):
     after_placed_imps_shortfall = place_placed_spots(spots_frame, id_list, demo_frame, first, time_dict,
                                                      spots_lists)
 
+
     starter_spots_list = deepcopy(spots_lists)
 
     for trial in range(0, number_of_trials):
@@ -146,12 +147,12 @@ def start(daypart, number_of_trials, aggressive_factor):
         place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps,
                     trial, True, after_placed_imps_shortfall, aggressive_factor)
 
-        # spots_lists = [[] for i in repeat(None, len(id_list))]
+
         spots_lists = deepcopy(starter_spots_list)
         for ids in id_list:
             time_dict[ids] = 780
-        # for x in range(0, len(id_list)):
-           # spots_lists[x].append(str(id_list[x]) + ' ')
+
+
 
     unplaced_spots = pd.Series(
         place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps,
