@@ -12,7 +12,7 @@ from functools import partial
 
 class YieldManagement(App):
     def build(self):
-        box_layout = FloatLayout(size=(300, 300), background_color=[0, 100, 100, 1])
+        box_layout = FloatLayout()
 
         day_spin = Spinner(size_hint=(.3, .1), pos_hint={'x': .15, 'y': .86}, background_color=[0, 1, 100, 1])
         day_spin.text = 'Day of Week'
