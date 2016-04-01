@@ -144,6 +144,7 @@ def start(daypart, number_of_trials, aggressive_factor):
 
     for trial in range(0, number_of_trials):
 
+
         place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps,
                     trial, True, after_placed_imps_shortfall, aggressive_factor)
 
