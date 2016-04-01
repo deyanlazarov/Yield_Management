@@ -165,6 +165,8 @@ def start(daypart, number_of_trials, aggressive_factor):
     final_spots['Unplaced'] = unplaced_spots
     final_spots.to_csv('output.csv')
 
+
+
     returned_list = [max(running_imps), len(unplaced_spots)]
 
     return returned_list
