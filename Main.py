@@ -3,12 +3,23 @@ from tkinter import ttk
 from Start import start
 
 
+class finished():
+    def __init__(self, master, returned_list):
+        self.root = master
+        self.root.minsize(width=666, height=320)
+        self.root.maxsize(width=666, height=320)
+        self.root.wm_title("OptiEdit")
+        self.root.config(bg="#D3D3D3")
+
+        self.code_label = Label(master, bg="#D3D3D3", text='You had a imps overage or shortage of ' + str(
+            round(returned_list[0], 1)) + ' and ' + str(returned_list[1]) + ' unplaced spots',
+                                    font=("Helvetica", 16)).grid(row=1, columnspan=4, pady=(150, 0), padx=(10, 0))
+
+
 
 class ym():
     def __init__(self, master):
-
         def update_daypart(current):
-
             menu = self.daypart['menu']
             menu.delete(0, 'end')
             self.daypart.config(state=NORMAL)
@@ -23,13 +34,11 @@ class ym():
                     menu.add_command(label=dayparts, command=lambda value=dayparts:
                     self.daypart_variable.set(value))
 
-
         self.root = master
         self.root.minsize(width=666, height=320)
         self.root.maxsize(width=666, height=320)
         self.root.wm_title("OptiEdit")
-
-        master.config(bg="#D3D3D3")
+        self.root.config(bg="#D3D3D3")
 
         # Add MenuOptions to row 0
         options = ["Monday", "Tuesday", "Wednesday", 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -48,32 +57,38 @@ class ym():
         ttk.Radiobutton(master, text="1 Iteration", variable=self.v, value=1).grid(row=1, column=0,
                                                                                    pady=(35, 0))
         ttk.Radiobutton(master, text="100 Iterations", variable=self.v, value=100).grid(row=1, column=1,
-                                                                                      pady=(35, 0))
+                                                                                        pady=(35, 0))
         ttk.Radiobutton(master, text="500 Iterations", variable=self.v, value=500).grid(row=1, column=2,
-                                                                                      pady=(35, 0))
-        one = ttk.Radiobutton(master, text="1000 Iterations", variable=self.v, value=1000).grid(row=1,
-                                                                                             column=3,
-                                                                                             pady=(35, 0))
+                                                                                        pady=(35, 0))
+        ttk.Radiobutton(master, text="1000 Iterations", variable=self.v, value=1000).grid(row=1,
+                                                                                          column=3,
+                                                                                          pady=(35, 0))
         self.v.set(1000)
 
         self.aggressive = IntVar()
         ttk.Radiobutton(master, text="Aggressive", variable=self.aggressive, value=0).grid(row=2, column=0,
                                                                                            columnspan=2,
                                                                                            pady=(35, 0))
-        ttk.Radiobutton(master, text="Moderate", variable=self.aggressive, value=250).grid(row=2, column=1, columnspan=2,
-                                                                                         pady=(35, 0))
+        ttk.Radiobutton(master, text="Moderate", variable=self.aggressive, value=250).grid(row=2, column=1,
+                                                                                           columnspan=2,
+                                                                                           pady=(35, 0))
         ttk.Radiobutton(master, text="Conservative", variable=self.aggressive, value=500).grid(row=2, column=2,
-                                                                                             columnspan=2,
-                                                                                             pady=(35, 0))
+                                                                                               columnspan=2,
+                                                                                               pady=(35, 0))
         self.aggressive.set(500)
 
         self.configure = ttk.Button(master, text="Customize Potential", command=self.configure, width=48).grid(column=0,
                                                                                                                columnspan=2,
                                                                                                                row=3,
                                                                                                                pady=(
-                                                                                                                   40, 0))
+                                                                                                                   40,
+                                                                                                                   0))
         self.calculate = ttk.Button(master, text="Okay", command=self.calculate, width=48).grid(column=2, columnspan=2,
                                                                                                 row=3, pady=(40, 0))
+
+        self.progress = ttk.Progressbar(master, orient="horizontal",
+                                        length=200, mode="determinate").grid_forget()
+
 
 
     def configure(self):
@@ -82,6 +97,9 @@ class ym():
     def calculate(self):
         returned_list = start(self.daypart_variable.get(), self.v.get(), self.aggressive.get())
         print(returned_list)
+        for items in root.grid_slaves():
+            items.grid_forget()
+        finished(root, returned_list)
 
 
 if __name__ == "__main__":
