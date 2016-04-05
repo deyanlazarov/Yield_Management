@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from Start import start
+from itertools import repeat
 
 
 class finished():
@@ -18,39 +19,42 @@ class finished():
 
 class change_potential():
     def __init__(self, master, daypart, aggressive, number_of_trials):
+        self.daypart = daypart
+        self.aggressive = aggressive
+        self.number_of_trials = number_of_trials
         self.root = master
         self.root.minsize(width=666, height=320)
         self.root.maxsize(width=666, height=320)
         self.root.wm_title("OptiEdit")
         self.root.config(bg="#D3D3D3")
-
-        if daypart == "Prime Access":
-            hour_options = ['18', '19']
-        elif daypart == "Weekend":
-            hour_options = ['7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19']
-        elif daypart == "Daytime":
-            hour_options = ['9', '10', '11', '12', '13', '14']
-        elif daypart == "Early Fringe":
-            hour_options = ['15', '16', '17']
-        else:
-            hour_options = ['21', '22', '23']
-
+        hour_options = ym.get_hours_from_daypart(master, daypart)
+        self.list_of_boxes = {}
         for i in range(0, len(hour_options)):
             if len(hour_options) > 6:
-                divisor = len(hour_options)//2
+                divisor = len(hour_options) // 2
                 if i > 5:
                     y_pos = 165
-                    x_pos = ((666//(divisor+1))-20) * ((i-6)+1)
+                    x_pos = ((666 // (divisor + 1)) - 20) * ((i - 6) + 1)
                 else:
                     y_pos = 115
-                    x_pos = ((666//(divisor+1))-20) * (i+1)
+                    x_pos = ((666 // (divisor + 1)) - 20) * (i + 1)
             else:
                 y_pos = 125
-                x_pos = ((666//(len(hour_options)+1))-20) * (i+1)
-            Label(master, text=hour_options[i]).place(x=x_pos, y=y_pos)
-            self.hour_1 = StringVar(master, value='780')
-            self.hour_1_enter = Entry(master, textvariable=self.hour_1, width=5).place(x=x_pos + 20, y=y_pos)
-        self.calculate = ttk.Button(master, text="Calculate",  width=105).place(x=15, y=280)
+                x_pos = ((666 // (len(hour_options) + 1)) - 20) * (i + 1)
+            label = Label(master, text=hour_options[i]).place(x=x_pos, y=y_pos)
+            self.hour_1 = StringVar(master, value=780)
+            hour_enter = Entry(master, textvariable=self.hour_1, width=5)
+            hour_enter.place(x=x_pos + 20, y=y_pos)
+            self.list_of_boxes[hour_options[i]] = hour_enter
+        self.calculate = ttk.Button(master, text="Calculate", command=self.calculate, width=105).place(x=15, y=280)
+
+    def calculate(self):
+        for keys in self.list_of_boxes:
+            self.list_of_boxes[keys] = int(self.list_of_boxes[keys].get())
+        returned_list = start(self.daypart, self.number_of_trials, self.aggressive, self.list_of_boxes)
+        for widget in root.winfo_children():
+            widget.destroy()
+        finished(root, returned_list)
 
 
 class ym():
@@ -132,11 +136,25 @@ class ym():
         change_potential(root, self.daypart_variable.get(), self.aggressive.get(), self.v.get())
 
     def calculate(self):
-        returned_list = start(self.daypart_variable.get(), self.v.get(), self.aggressive.get())
-        print(returned_list)
+        time_dict = dict(zip(self.get_hours_from_daypart(self.daypart_variable.get()), repeat(780)))
+        returned_list = start(self.daypart_variable.get(), self.v.get(), self.aggressive.get(), time_dict)
         for items in root.grid_slaves():
             items.grid_forget()
         finished(root, returned_list)
+
+    def get_hours_from_daypart(self, daypart):
+        options = [i for i in range(7, 24)]
+        if daypart == "Prime Access":
+            hour_options = options[11:13]
+        elif daypart == "Weekend":
+            hour_options = options[:13]
+        elif daypart == "Daytime":
+            hour_options = options[2:7]
+        elif daypart == "Early Fringe":
+            hour_options = options[7:10]
+        else:
+            hour_options = options[14:]
+        return hour_options
 
 
 if __name__ == "__main__":
