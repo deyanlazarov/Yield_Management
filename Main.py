@@ -13,8 +13,44 @@ class finished():
 
         self.code_label = Label(master, bg="#D3D3D3", text='You had a imps overage or shortage of ' + str(
             round(returned_list[0], 1)) + ' and ' + str(returned_list[1]) + ' unplaced spots',
-                                    font=("Helvetica", 16)).grid(row=1, columnspan=4, pady=(150, 0), padx=(10, 0))
+                                font=("Helvetica", 16)).grid(row=1, columnspan=4, pady=(150, 0), padx=(10, 0))
 
+
+class change_potential():
+    def __init__(self, master, daypart, aggressive, number_of_trials):
+        self.root = master
+        self.root.minsize(width=666, height=320)
+        self.root.maxsize(width=666, height=320)
+        self.root.wm_title("OptiEdit")
+        self.root.config(bg="#D3D3D3")
+
+        if daypart == "Prime Access":
+            hour_options = ['18', '19']
+        elif daypart == "Weekend":
+            hour_options = ['7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19']
+        elif daypart == "Daytime":
+            hour_options = ['9', '10', '11', '12', '13', '14']
+        elif daypart == "Early Fringe":
+            hour_options = ['15', '16', '17']
+        else:
+            hour_options = ['21', '22', '23']
+
+        for i in range(0, len(hour_options)):
+            if len(hour_options) > 6:
+                divisor = len(hour_options)//2
+                if i > 5:
+                    y_pos = 165
+                    x_pos = ((666//(divisor+1))-20) * ((i-6)+1)
+                else:
+                    y_pos = 115
+                    x_pos = ((666//(divisor+1))-20) * (i+1)
+            else:
+                y_pos = 125
+                x_pos = ((666//(len(hour_options)+1))-20) * (i+1)
+            Label(master, text=hour_options[i]).place(x=x_pos, y=y_pos)
+            self.hour_1 = StringVar(master, value='780')
+            self.hour_1_enter = Entry(master, textvariable=self.hour_1, width=5).place(x=x_pos + 20, y=y_pos)
+        self.calculate = ttk.Button(master, text="Calculate",  width=105).place(x=15, y=280)
 
 
 class ym():
@@ -90,9 +126,10 @@ class ym():
                                         length=200, mode="determinate").grid_forget()
 
 
-
     def configure(self):
-        pass
+        for items in root.grid_slaves():
+            items.grid_forget()
+        change_potential(root, self.daypart_variable.get(), self.aggressive.get(), self.v.get())
 
     def calculate(self):
         returned_list = start(self.daypart_variable.get(), self.v.get(), self.aggressive.get())
