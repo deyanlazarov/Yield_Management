@@ -2,7 +2,7 @@ __author__ = '143740'
 import pandas as pd
 import time
 
-# TODO - Deal with DR
+
 
 
 def convert_to_seconds(current_time):

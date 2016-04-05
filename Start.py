@@ -51,7 +51,7 @@ def place_placed_spots(spots_frame, id_list, demo_frame, first, time_dict, spots
             spots_list[needed_location].append(
                 (spots_frame.iloc[x][2], spots_frame.iloc[x][10], str(spots_frame.iloc[x][1]) + '**',
                  spots_frame.iloc[x][6],
-                 round(current_imps_deficit), 2))
+                 str(round(current_imps_deficit, 2))))
             time_dict[int(spots_frame.iloc[x][3])] = time_dict[int(spots_frame.iloc[x][3])] - spots_frame.iloc[x][6]
             running_imps_total += current_imps_deficit
         else:
@@ -95,9 +95,9 @@ def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot
             # Find the position in id_list where that show is
             current_location = id_list.index(current_show)
             # Take that location and add to it the current spots information since it should go in that show
-            current_imps_deficit = -imps + (demo_data_frame.iloc[potentials][current_index] * float(length_of_spot))
+            current_imps_deficit = round(-imps + (demo_data_frame.iloc[potentials][current_index] * float(length_of_spot)), 2)
             spots_lists[current_location].append(
-                (advertiser.strip(), product.strip(), spot_id, length_of_spot, round(current_imps_deficit, 2)))
+                (advertiser.strip(), product.strip(), spot_id, length_of_spot, str(current_imps_deficit)))
             # Figure out the impressions difference and add it to the running total
             return current_imps_deficit
         elif potentials < len(id_list) - 1:
@@ -140,7 +140,6 @@ def start(daypart, number_of_trials, aggressive_factor, time_dict):
     starter_time_dict = deepcopy(time_dict)
     starter_spots_list = deepcopy(spots_lists)
 
-    print(time_dict)
 
     for trial in range(0, number_of_trials):
         place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps,
