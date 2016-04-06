@@ -106,11 +106,10 @@ def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot
             return advertiser.strip()
 
 
-def start(daypart, number_of_trials, aggressive_factor, time_dict):
+def start(daypart, number_of_trials, aggressive_factor, time_dict, ratings_path, spots_path):
     # Combine Ratings Projection/Actual Files to get the list of actual shows that we can
     # place commercials in
-    frame = import_ratings(daypart)
-
+    frame = import_ratings(daypart, ratings_path)
     # Create a blank dictionary and then fill it with the rows from frame and the number of seconds
     # available for commercials
     id_list = frame['ID'].tolist()
@@ -119,7 +118,7 @@ def start(daypart, number_of_trials, aggressive_factor, time_dict):
     spots_lists = [[] for i in repeat(None, len(id_list))]
     for x in range(0, len(id_list)):
         spots_lists[x].append(str(id_list[x]) + ' ')
-    spots_frame = preempt_credit_names(daypart)
+    spots_frame = preempt_credit_names(daypart, spots_path)
 
     first = spots_frame[' Primary Demo'].unique()
 

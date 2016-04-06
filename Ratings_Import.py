@@ -41,8 +41,7 @@ def assign_daypart(weekend, current_hour):
         return assign_day_part(5, current_hour)
 
 
-def import_ratings(daypart):
-    path = r'C:\Users\143740\Desktop\Travel Ratings'
+def import_ratings(daypart, path):
     allFiles = glob.glob(path + "/*.csv")
     list_ = []
     for file_ in allFiles:

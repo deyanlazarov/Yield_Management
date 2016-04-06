@@ -1,6 +1,8 @@
 __author__ = '143740'
 import pandas as pd
 import time
+import glob
+
 
 
 
@@ -74,10 +76,15 @@ def prepare_frame(current_frame, daypart):
     return current_frame
 
 
-def preempt_credit_names(daypart):
+def preempt_credit_names(daypart, path):
+    allFiles = glob.glob(path + "/*.csv")
+    list_ = []
+    for file_ in allFiles:
+        df = pd.read_csv(file_, index_col=None, header=0)
+        list_.append(df)
     pd.options.mode.chained_assignment = None
-    df = pd.read_csv(r'C:\Users\143740\Desktop\Sunday Spots.csv')
-    return prepare_frame(df, daypart)
+    return prepare_frame(pd.concat(list_), daypart)
 
 
-preempt_credit_names('Daytime')
+
+
