@@ -6,8 +6,60 @@ import configparser
 import os.path
 
 
+class default_edit():
+    def __init__(self, master, config):
+        self.root = master
+        self.config = configparser.ConfigParser()
+        options = ["Cooking", "DiY", "Food", 'GAC', 'HGTV', 'Travel']
+        self.network_variable = StringVar(master)
+        self.network = ttk.OptionMenu(master, self.network_variable, config['DEFAULT']['NETWORK'], command=self.update,
+                                      *options)
+        self.network.config(width=30)
+        self.network.place(x=250, y=50)
+        Label(master, bg="#D3D3D3", text='Default Potential').place(x=270, y=90)
+        Label(master, bg="#D3D3D3", text='Path to Ratings File: ').place(x=150, y=130)
+        Label(master, bg="#D3D3D3", text='Path to Spots File: ').place(x=150, y=170)
+        self.ratings_var = StringVar(master)
+        self.ratings_var.set(config['DEFAULT']['RATINGS_PATH'])
+        ratings_label = Label(master, bg="#D3D3D3", textvariable=self.ratings_var)
+        ratings_label.place(x=270, y=130)
+        self.spots_var = StringVar(master)
+        self.spots_var.set(config['DEFAULT']['SPOTS_PATH'])
+        spots_label = Label(master, bg="#D3D3D3", textvariable=self.spots_var)
+        spots_label.place(x=270, y=170)
+        self.current_selection = config['DEFAULT']['NETWORK']
+
+        self.potential = StringVar(master, value=config['DEFAULT']['DEFAULT_POTENTIAL'])
+        potential_enter = Entry(master, textvariable=self.potential, width=5)
+        potential_enter.place(x=370, y=90)
+
+        self.cancel_button = ttk.Button(master, text="Cancel", command=self.cancel, width=50).place(x=15, y=280)
+        self.okay_button = ttk.Button(master, text="Okay", command=self.okay, width=50).place(x=350, y=280)
+
+    def cancel(self):
+        for widget in root.winfo_children():
+            widget.destroy()
+        ym(self.root)
+
+    def okay(self):
+        self.config['DEFAULT'] = {'NETWORK': self.network_variable.get(),
+                                  'DEFAULT_POTENTIAL': int(self.potential.get()),
+                                  'RATINGS_PATH': self.ratings_var.get(),
+                                  'SPOTS_PATH': self.spots_var.get()}
+        with open('user.ini', 'w') as configfile:
+            self.config.write(configfile)
+        for widget in root.winfo_children():
+            widget.destroy()
+        ym(self.root)
+
+    def update(self, current):
+        self.ratings_var.set(self.ratings_var.get().replace(self.current_selection, current))
+        self.spots_var.set(self.spots_var.get().replace(self.current_selection, current))
+        self.current_selection = current
+
+
 class finished():
-    def __init__(self, master, returned_list):
+    def __init__(self, master, returned_list, daypart):
         self.root = master
         self.root.minsize(width=666, height=320)
         self.root.maxsize(width=666, height=320)
@@ -15,8 +67,11 @@ class finished():
         self.root.config(bg="#D3D3D3")
 
         self.code_label = Label(master, bg="#D3D3D3", text='You had a imps overage or shortage of ' + str(
-            round(returned_list[0], 1)) + ' and ' + str(returned_list[1]) + ' unplaced spots',
-                                font=("Helvetica", 16)).grid(row=1, columnspan=4, pady=(150, 0), padx=(10, 0))
+            round(returned_list[0], 1)) + ' and ' + str(returned_list[1]) + ' unplaced spots.',
+                                font=("Helvetica", 14)).grid(row=1, columnspan=4, pady=(150, 0), padx=(30, 0))
+        self.code_label = Label(master, bg="#D3D3D3",
+                                text='Your results can be found in a file called ' + daypart + '.csv which will be found in your Completed folder',
+                                font=("Helvetica", 10)).grid(row=2, columnspan=4, pady=(0, 0), padx=(30, 0))
 
 
 class change_potential():
@@ -25,7 +80,7 @@ class change_potential():
         self.aggressive = aggressive
         self.number_of_trials = number_of_trials
         self.ratings_path = ratings_path
-        self.spots_path - spots_path
+        self.spots_path = spots_path
         self.root = master
         self.root.minsize(width=666, height=320)
         self.root.maxsize(width=666, height=320)
@@ -45,7 +100,7 @@ class change_potential():
             else:
                 y_pos = 125
                 x_pos = ((666 // (len(hour_options) + 1)) - 20) * (i + 1)
-            label = Label(master, text=hour_options[i]).place(x=x_pos, y=y_pos)
+            Label(master, text=hour_options[i]).place(x=x_pos, y=y_pos)
             self.hour_1 = StringVar(master, value=potential)
             hour_enter = Entry(master, textvariable=self.hour_1, width=5)
             hour_enter.place(x=x_pos + 20, y=y_pos)
@@ -59,7 +114,7 @@ class change_potential():
                               self.ratings_path, self.spots_path)
         for widget in root.winfo_children():
             widget.destroy()
-        finished(root, returned_list)
+        finished(root, returned_list, daypart)
 
 
 class ym():
@@ -70,7 +125,7 @@ class ym():
             self.config.read('user.ini')
         else:
             self.config['DEFAULT'] = {'NETWORK': 'Travel',
-                                      'DEFAULT_POTENTIAL': 800,
+                                      'DEFAULT_POTENTIAL': 780,
                                       'RATINGS_PATH': r'F:\\Traffic Logs\\Travel\\OptiEdit\\Travel Ratings\\',
                                       'SPOTS_PATH': r'F:\\Traffic Logs\\Travel\\OptiEdit\\Travel Spots\\'}
             with open('user.ini', 'w') as configfile:
@@ -155,7 +210,7 @@ class ym():
             self.config['DEFAULT']['RATINGS_PATH'], self.config['DEFAULT']['SPOTS_PATH'])
         for items in root.grid_slaves():
             items.grid_forget()
-        finished(root, returned_list)
+        finished(root, returned_list, self.daypart_variable.get())
 
     def get_hours_from_daypart(self, daypart):
         options = [i for i in range(7, 24)]
@@ -175,7 +230,9 @@ class ym():
         exit()
 
     def change_default_ini(self):
-        print('here')
+        for widget in root.winfo_children():
+            widget.destroy()
+        default_edit(root, self.config)
 
     def update_daypart(self, current):
         menu = self.daypart['menu']

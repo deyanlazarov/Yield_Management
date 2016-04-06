@@ -5,6 +5,7 @@ from Demo_List_Names import sum_dict_names
 from Preempt_Credit import preempt_credit_names
 from Ratings_Import import import_ratings
 from copy import deepcopy
+import os
 
 
 def convert_to_seconds(time):
@@ -153,10 +154,12 @@ def start(daypart, number_of_trials, aggressive_factor, time_dict, ratings_path,
 
 
     # Save the resulting list to a csv file for placing
+    os.chdir(ratings_path)
+    os.chdir('../Completed')
     final_spots = pd.DataFrame(spots_lists)
     final_spots = final_spots.transpose()
     final_spots['Unplaced'] = unplaced_spots
-    final_spots.to_csv('output.csv')
+    final_spots.to_csv(daypart + '.csv')
 
     returned_list = [max(running_imps), len(unplaced_spots)]
 
