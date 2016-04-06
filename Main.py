@@ -114,7 +114,7 @@ class change_potential():
                               self.ratings_path, self.spots_path)
         for widget in root.winfo_children():
             widget.destroy()
-        finished(root, returned_list, daypart)
+        finished(root, returned_list, self.daypart)
 
 
 class ym():
