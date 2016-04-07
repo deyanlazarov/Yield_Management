@@ -207,7 +207,7 @@ class ym():
         time_dict = dict(zip(self.get_hours_from_daypart(self.daypart_variable.get()),
             repeat(int(self.config['DEFAULT']['DEFAULT_POTENTIAL']))))
         returned_list = start(self.daypart_variable.get(), self.v.get(), self.aggressive.get(), time_dict,
-            self.config['DEFAULT']['RATINGS_PATH'], self.config['DEFAULT']['SPOTS_PATH'])
+            self.config['DEFAULT']['RATINGS_PATH'], self.config['DEFAULT']['SPOTS_PATH'], root)
         for items in root.grid_slaves():
             items.grid_forget()
         finished(root, returned_list, self.daypart_variable.get())

@@ -6,6 +6,8 @@ from Preempt_Credit import preempt_credit_names
 from Ratings_Import import import_ratings
 from copy import deepcopy
 import os
+from tkinter import *
+from tkinter import ttk
 
 
 def convert_to_seconds(time):
@@ -107,9 +109,17 @@ def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot
             return advertiser.strip()
 
 
-def start(daypart, number_of_trials, aggressive_factor, time_dict, ratings_path, spots_path):
+def start(daypart, number_of_trials, aggressive_factor, time_dict, ratings_path, spots_path, root):
     # Combine Ratings Projection/Actual Files to get the list of actual shows that we can
     # place commercials in
+    popup = Toplevel(root)
+    progressbar = ttk.Progressbar(popup,
+        orient=HORIZONTAL, length=200, mode='determinate')
+    progressbar.grid(row=1, column=0)
+    progressbar['value'] = 0
+    progressbar['maximum'] = number_of_trials
+
+
     frame = import_ratings(daypart, ratings_path)
     # Create a blank dictionary and then fill it with the rows from frame and the number of seconds
     # available for commercials
@@ -144,6 +154,9 @@ def start(daypart, number_of_trials, aggressive_factor, time_dict, ratings_path,
     for trial in range(0, number_of_trials):
         place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps,
                     trial, True, after_placed_imps_shortfall, aggressive_factor)
+
+        progressbar['value'] = trial
+        progressbar.update_idletasks()
 
         spots_lists = deepcopy(starter_spots_list)
         time_dict = deepcopy(starter_time_dict)
