@@ -6,7 +6,7 @@ import configparser
 import os.path
 
 
-class default_edit():
+class DefaultEdit():
     def __init__(self, master, config):
         self.root = master
         self.config = configparser.ConfigParser()
@@ -39,7 +39,7 @@ class default_edit():
     def cancel(self):
         for widget in root.winfo_children():
             widget.destroy()
-        ym(self.root)
+        Ym(self.root)
 
     def okay(self):
         self.config['DEFAULT'] = {'NETWORK': self.network_variable.get(),
@@ -50,7 +50,7 @@ class default_edit():
             self.config.write(configfile)
         for widget in root.winfo_children():
             widget.destroy()
-        ym(self.root)
+        Ym(self.root)
 
     def update(self, current):
         self.ratings_var.set(self.ratings_var.get().replace(self.current_selection, current))
@@ -58,7 +58,7 @@ class default_edit():
         self.current_selection = current
 
 
-class finished():
+class Finished():
     def __init__(self, master, returned_list, daypart):
         self.root = master
         self.root.minsize(width=666, height=320)
@@ -67,14 +67,15 @@ class finished():
         self.root.config(bg="#D3D3D3")
 
         self.code_label = Label(master, bg="#D3D3D3", text='You had a imps overage or shortage of ' + str(
-            round(returned_list[0], 1)) + ' and ' + str(returned_list[1]) + ' unplaced spots.',
+                                round(returned_list[0], 1)) + ' and ' + str(returned_list[1]) + ' unplaced spots.',
                                 font=("Helvetica", 14)).grid(row=1, columnspan=4, pady=(150, 0), padx=(30, 0))
         self.code_label = Label(master, bg="#D3D3D3",
-                                text='Your results can be found in a file called ' + daypart + '.csv which will be found in your Completed folder',
+                                text='Your results can be found in a file called ' + daypart +
+                                '.csv which will be found in your Completed folder',
                                 font=("Helvetica", 10)).grid(row=2, columnspan=4, pady=(0, 0), padx=(30, 0))
 
 
-class change_potential():
+class ChangePotential():
     def __init__(self, master, daypart, aggressive, number_of_trials, potential, ratings_path, spots_path):
         self.daypart = daypart
         self.aggressive = aggressive
@@ -86,7 +87,7 @@ class change_potential():
         self.root.maxsize(width=666, height=320)
         self.root.wm_title("OptiEdit")
         self.root.config(bg="#D3D3D3")
-        hour_options = ym.get_hours_from_daypart(master, daypart)
+        hour_options = Ym.get_hours_from_daypart(daypart)
         self.list_of_boxes = {}
         for i in range(0, len(hour_options)):
             if len(hour_options) > 6:
@@ -111,13 +112,13 @@ class change_potential():
         for keys in self.list_of_boxes:
             self.list_of_boxes[keys] = int(self.list_of_boxes[keys].get())
         returned_list = start(self.daypart, self.number_of_trials, self.aggressive, self.list_of_boxes,
-                              self.ratings_path, self.spots_path)
+                              self.ratings_path, self.spots_path, root)
         for widget in root.winfo_children():
             widget.destroy()
-        finished(root, returned_list, self.daypart)
+        Finished(root, returned_list, self.daypart)
 
 
-class ym():
+class Ym():
     def __init__(self, master):
 
         self.config = configparser.ConfigParser()
@@ -183,36 +184,32 @@ class ym():
                                                                                                pady=(35, 0))
         self.aggressive.set(500)
 
-        self.configure = ttk.Button(master, text="Customize Potential", command=self.configure, width=48).grid(column=0,
-                                                                                                               columnspan=2,
-                                                                                                               row=3,
-                                                                                                               pady=(
-                                                                                                                   40,
-                                                                                                                   0))
+        self.configure = ttk.Button(master, text="Customize Potential", command=self.configure, 
+                                    width=48).grid(column=0, columnspan=2, row=3, pady=(40, 0))
         self.calculate = ttk.Button(master, text="Okay", command=self.calculate, width=48).grid(column=2, columnspan=2,
                                                                                                 row=3, pady=(40, 0))
 
         self.progress = ttk.Progressbar(master, orient="horizontal",
                                         length=200, mode="determinate").grid_forget()
 
-
     def configure(self):
         for items in root.grid_slaves():
             items.grid_forget()
-        change_potential(root, self.daypart_variable.get(), self.aggressive.get(), self.v.get(),
-                         self.config['DEFAULT']['DEFAULT_POTENTIAL'], self.config['DEFAULT']['RATINGS_PATH'],
-                         self.config['DEFAULT']['SPOTS_PATH'])
+        ChangePotential(root, self.daypart_variable.get(), self.aggressive.get(), self.v.get(),
+                        self.config['DEFAULT']['DEFAULT_POTENTIAL'], self.config['DEFAULT']['RATINGS_PATH'],
+                        self.config['DEFAULT']['SPOTS_PATH'])
 
     def calculate(self):
         time_dict = dict(zip(self.get_hours_from_daypart(self.daypart_variable.get()),
-            repeat(int(self.config['DEFAULT']['DEFAULT_POTENTIAL']))))
+                             repeat(int(self.config['DEFAULT']['DEFAULT_POTENTIAL']))))
         returned_list = start(self.daypart_variable.get(), self.v.get(), self.aggressive.get(), time_dict,
-            self.config['DEFAULT']['RATINGS_PATH'], self.config['DEFAULT']['SPOTS_PATH'], root)
+                              self.config['DEFAULT']['RATINGS_PATH'], self.config['DEFAULT']['SPOTS_PATH'], root)
         for items in root.grid_slaves():
             items.grid_forget()
-        finished(root, returned_list, self.daypart_variable.get())
+        Finished(root, returned_list, self.daypart_variable.get())
 
-    def get_hours_from_daypart(self, daypart):
+    @staticmethod
+    def get_hours_from_daypart(daypart):
         options = [i for i in range(7, 24)]
         if daypart == "Prime Access":
             hour_options = options[11:13]
@@ -226,34 +223,32 @@ class ym():
             hour_options = options[14:]
         return hour_options
 
-    def exit_file(self):
+    @staticmethod
+    def exit_file():
         exit()
 
     def change_default_ini(self):
         for widget in root.winfo_children():
             widget.destroy()
-        default_edit(root, self.config)
+        DefaultEdit(root, self.config)
 
     def update_daypart(self, current):
         menu = self.daypart['menu']
         menu.delete(0, 'end')
         self.daypart.config(state=NORMAL)
         if current == 'Saturday' or current == 'Sunday':
-            optionsday = ['Weekend', 'Prime 1', 'Prime 2']
-            for dayparts in optionsday:
-                menu.add_command(label=dayparts, command=lambda value=dayparts:
-                self.daypart_variable.set(value))
+            options_day = ['Weekend', 'Prime 1', 'Prime 2']
+            for daypart in options_day:
+                menu.add_command(label=daypart, command=lambda value=daypart:
+                                 self.daypart_variable.set(value))
         else:
-            optionsday = ["Daytime", "Early Fringe", "Prime Access", 'Prime 1', 'Prime 2']
-            for dayparts in optionsday:
-                menu.add_command(label=dayparts, command=lambda value=dayparts:
-                self.daypart_variable.set(value))
+            options_day = ["Daytime", "Early Fringe", "Prime Access", 'Prime 1', 'Prime 2']
+            for daypart in options_day:
+                menu.add_command(label=daypart, command=lambda value=daypart:
+                                 self.daypart_variable.set(value))
 
 
 if __name__ == "__main__":
     root = Tk()
-    res = ym(root)
+    res = Ym(root)
     root.mainloop()
-
-
-

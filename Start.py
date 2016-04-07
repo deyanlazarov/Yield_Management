@@ -98,7 +98,8 @@ def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot
             # Find the position in id_list where that show is
             current_location = id_list.index(current_show)
             # Take that location and add to it the current spots information since it should go in that show
-            current_imps_deficit = round(-imps + (demo_data_frame.iloc[potentials][current_index] * float(length_of_spot)), 2)
+            current_imps_deficit = round(-imps +
+                                         (demo_data_frame.iloc[potentials][current_index] * float(length_of_spot)), 2)
             spots_lists[current_location].append(
                 (advertiser.strip(), product.strip(), spot_id, length_of_spot, str(current_imps_deficit)))
             # Figure out the impressions difference and add it to the running total
@@ -114,11 +115,10 @@ def start(daypart, number_of_trials, aggressive_factor, time_dict, ratings_path,
     # place commercials in
     popup = Toplevel(root)
     progressbar = ttk.Progressbar(popup,
-        orient=HORIZONTAL, length=200, mode='determinate')
+                                  orient=HORIZONTAL, length=200, mode='determinate')
     progressbar.grid(row=1, column=0)
     progressbar['value'] = 0
     progressbar['maximum'] = number_of_trials
-
 
     frame = import_ratings(daypart, ratings_path)
     # Create a blank dictionary and then fill it with the rows from frame and the number of seconds
@@ -150,13 +150,12 @@ def start(daypart, number_of_trials, aggressive_factor, time_dict, ratings_path,
     starter_time_dict = deepcopy(time_dict)
     starter_spots_list = deepcopy(spots_lists)
 
-
     for trial in range(0, number_of_trials):
         place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps,
                     trial, True, after_placed_imps_shortfall, aggressive_factor)
 
         progressbar['value'] = trial
-        progressbar.update_idletasks()
+        progressbar.update()
 
         spots_lists = deepcopy(starter_spots_list)
         time_dict = deepcopy(starter_time_dict)
@@ -165,6 +164,7 @@ def start(daypart, number_of_trials, aggressive_factor, time_dict, ratings_path,
         place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps,
                     running_imps.index(max(running_imps)), True, after_placed_imps_shortfall, aggressive_factor))
 
+    popup.destroy()
 
     # Save the resulting list to a csv file for placing
     os.chdir(ratings_path)
@@ -177,5 +177,3 @@ def start(daypart, number_of_trials, aggressive_factor, time_dict, ratings_path,
     returned_list = [max(running_imps), len(unplaced_spots)]
 
     return returned_list
-
-
