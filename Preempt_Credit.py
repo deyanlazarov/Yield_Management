@@ -47,6 +47,7 @@ def assign_day_part(day_number, start_hour):
 
 
 def prepare_frame(current_frame, daypart):
+    current_frame = current_frame[(current_frame.MG.isnull() == True) | (current_frame.MG == 'M')]
     list_of_desired_columns = ['Air Date', 'Spot ID', 'Advertiser', 'Hit Time', 'Start Time', 'End Time',
                                 'Length', ' Primary Demo', 'Unit Cost', 'Proposal Qtr. CPM', 'Primary Product Category']
     current_frame = current_frame[list_of_desired_columns]
