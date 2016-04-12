@@ -9,10 +9,10 @@ import os
 from tkinter import *
 from tkinter import ttk
 
-
-def convert_to_seconds(time):
-    return int(time.split(":")[1]) if time.split(":")[0] == "" else int(time.split(":")[0]) * 60 + int(
-        time.split(":")[1])
+#
+# def convert_to_seconds(time):
+#     return int(time.split(":")[1]) if time.split(":")[0] == "" else int(time.split(":")[0]) * 60 + int(
+#         time.split(":")[1])
 
 
 def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_list, running_imps,
