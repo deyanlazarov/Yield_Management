@@ -91,7 +91,6 @@ def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot
         if time_dict[current_show] - length_of_spot >= 0 and not too_many and not too_many_product:
             time_dict[current_show] = time_dict[current_show] - length_of_spot
             # Find the position in id_list where that show is
-            # print(str(current_show) + ' Imps Needed ' + str(imps) + ' ' + str(length_of_spot))
             current_location = id_list.index(current_show)
             # Take that location and add to it the current spots information since it should go in that show
             current_imps_deficit = round(-imps +
