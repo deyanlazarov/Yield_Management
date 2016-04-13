@@ -9,11 +9,6 @@ import os
 from tkinter import *
 from tkinter import ttk
 
-#
-# def convert_to_seconds(time):
-#     return int(time.split(":")[1]) if time.split(":")[0] == "" else int(time.split(":")[0]) * 60 + int(
-#         time.split(":")[1])
-
 
 def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_list, running_imps,
                 random_trial, keep_imps, after_placed_imps, aggressive_factor):
@@ -34,7 +29,7 @@ def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_li
             if isinstance(current_imps, str) and keep_imps:
                 unplaced_spots.append(current_imps)
             elif isinstance(current_imps, str):
-                pass
+                unplaced_spots.append(current_imps)
             else:
                 running_imps_total += current_imps
         else:
@@ -96,6 +91,7 @@ def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot
         if time_dict[current_show] - length_of_spot >= 0 and not too_many and not too_many_product:
             time_dict[current_show] = time_dict[current_show] - length_of_spot
             # Find the position in id_list where that show is
+            # print(str(current_show) + ' Imps Needed ' + str(imps) + ' ' + str(length_of_spot))
             current_location = id_list.index(current_show)
             # Take that location and add to it the current spots information since it should go in that show
             current_imps_deficit = round(-imps +
@@ -103,16 +99,19 @@ def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot
             spots_lists[current_location].append(
                 (advertiser.strip(), product.strip(), spot_id, length_of_spot, str(current_imps_deficit)))
             # Figure out the impressions difference and add it to the running total
+            demo_data_frame.sort_index(inplace=True)
             return current_imps_deficit
         elif potentials < len(id_list) - 1:
             pass
         else:
+            demo_data_frame.sort_index(inplace=True)
             return advertiser.strip()
 
 
 def start(daypart, number_of_trials, aggressive_factor, time_dict, ratings_path, spots_path, root):
     # Combine Ratings Projection/Actual Files to get the list of actual shows that we can
     # place commercials in
+
     popup = Toplevel(root)
     progressbar = ttk.Progressbar(popup,
                                   orient=HORIZONTAL, length=200, mode='determinate')
@@ -152,7 +151,7 @@ def start(daypart, number_of_trials, aggressive_factor, time_dict, ratings_path,
 
     for trial in range(0, number_of_trials):
         place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps,
-                    trial, True, after_placed_imps_shortfall, aggressive_factor)
+                    trial, False, after_placed_imps_shortfall, aggressive_factor)
 
         progressbar['value'] = trial
         progressbar.update()
