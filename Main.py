@@ -173,16 +173,16 @@ class Ym():
         self.v.set(1000)
 
         self.aggressive = IntVar()
-        ttk.Radiobutton(master, text="Aggressive", variable=self.aggressive, value=0).grid(row=2, column=0,
+        ttk.Radiobutton(master, text="Aggressive", variable=self.aggressive, value=3).grid(row=2, column=0,
                                                                                            columnspan=2,
                                                                                            pady=(35, 0))
-        ttk.Radiobutton(master, text="Moderate", variable=self.aggressive, value=100).grid(row=2, column=1,
+        ttk.Radiobutton(master, text="Moderate", variable=self.aggressive, value=2).grid(row=2, column=1,
                                                                                            columnspan=2,
                                                                                            pady=(35, 0))
-        ttk.Radiobutton(master, text="Conservative", variable=self.aggressive, value=200).grid(row=2, column=2,
+        ttk.Radiobutton(master, text="Conservative", variable=self.aggressive, value=1).grid(row=2, column=2,
                                                                                                columnspan=2,
                                                                                                pady=(35, 0))
-        self.aggressive.set(500)
+        self.aggressive.set(1)
 
         self.configure = ttk.Button(master, text="Customize Potential", command=self.configure, 
                                     width=48).grid(column=0, columnspan=2, row=3, pady=(40, 0))

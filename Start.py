@@ -32,9 +32,13 @@ def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_li
                 unplaced_spots.append(current_imps)
             else:
                 running_imps_total += current_imps
+            if len(unplaced_spots) > aggressive_factor:
+                running_imps.append(80000)
+                return
         else:
             pass
-    running_imps.append(running_imps_total - (len(unplaced_spots) * aggressive_factor))
+
+    running_imps.append(running_imps_total)
     return unplaced_spots
 
 
@@ -158,9 +162,16 @@ def start(daypart, number_of_trials, aggressive_factor, time_dict, ratings_path,
         spots_lists = deepcopy(starter_spots_list)
         time_dict = deepcopy(starter_time_dict)
 
+    absRunningImps = [abs(number) for number in running_imps]
+    positiveornegative = sum(running_imps)
+    if positiveornegative < 0:
+        returned_number = -min(absRunningImps)
+    else:
+        returned_number = min(absRunningImps)
+
     unplaced_spots = pd.Series(
         place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps,
-                    running_imps.index(max(running_imps)), True, after_placed_imps_shortfall, aggressive_factor))
+                    absRunningImps.index(min(absRunningImps)), True, after_placed_imps_shortfall, aggressive_factor))
 
     popup.destroy()
 
@@ -172,6 +183,6 @@ def start(daypart, number_of_trials, aggressive_factor, time_dict, ratings_path,
     final_spots['Unplaced'] = unplaced_spots
     final_spots.to_csv(daypart + '.csv')
 
-    returned_list = [max(running_imps), len(unplaced_spots)]
+    returned_list = [returned_number, len(unplaced_spots)]
 
     return returned_list

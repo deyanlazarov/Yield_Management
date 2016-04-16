@@ -4,9 +4,6 @@ import time
 import glob
 
 
-
-
-
 def convert_to_seconds(current_time):
     return int(current_time.split(":")[2]) if current_time.split(":")[1] == "" else int(
         current_time.split(":")[1]) * 60 + int(
@@ -48,8 +45,9 @@ def assign_day_part(day_number, start_hour):
 
 def prepare_frame(current_frame, daypart):
     current_frame = current_frame[(current_frame.MG.isnull() == True) | (current_frame.MG == 'M')]
+    current_frame = current_frame[(current_frame.CR != True)]
     list_of_desired_columns = ['Air Date', 'Spot ID', 'Advertiser', 'Hit Time', 'Start Time', 'End Time',
-                                'Length', ' Primary Demo', 'Unit Cost', 'Proposal Qtr. CPM', 'Primary Product Category']
+                               'Length', ' Primary Demo', 'Unit Cost', 'Proposal Qtr. CPM', 'Primary Product Category']
     current_frame = current_frame[list_of_desired_columns]
     current_frame['Length'] = current_frame.apply(lambda x: convert_to_seconds(x['Length']), axis=1)
     dollar_conversion = ['Unit Cost', 'Proposal Qtr. CPM']
