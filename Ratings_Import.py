@@ -25,6 +25,7 @@ def clean_ratings(ratings_frame, daypart):
             ratings_frame.set_value(i, names, ratings_frame[names][i] + ratings_frame[names][mirror_indexes[i - military_list.index(20)]])
     ratings_frame.drop([0, 1, 2, 3], inplace=True)
     ratings_frame.reset_index(inplace=True, drop=True)
+    ratings_frame['M2-5'] = 0
     weekend = True if ratings_frame['ID'][0] == 7 else False
     ratings_frame['Daypart'] = ratings_frame.apply(lambda row: assign_daypart(weekend, row['ID']), axis=1)
     ratings_frame = ratings_frame.drop(ratings_frame[ratings_frame['Daypart'] != daypart].index)

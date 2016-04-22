@@ -111,6 +111,14 @@ def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot
             return advertiser.strip()
 
 
+def get_sum(running_imps):
+    counter = 0
+    for imps in running_imps:
+        if imps != 80000:
+            counter += imps
+    return counter
+
+
 def start(daypart, number_of_trials, aggressive_factor, time_dict, ratings_path, spots_path, root):
     # Combine Ratings Projection/Actual Files to get the list of actual shows that we can
     # place commercials in
@@ -146,6 +154,8 @@ def start(daypart, number_of_trials, aggressive_factor, time_dict, ratings_path,
 
     running_imps = []
 
+
+
     after_placed_imps_shortfall = place_placed_spots(spots_frame, id_list, demo_frame, first, time_dict,
                                                      spots_lists)
 
@@ -162,10 +172,12 @@ def start(daypart, number_of_trials, aggressive_factor, time_dict, ratings_path,
         spots_lists = deepcopy(starter_spots_list)
         time_dict = deepcopy(starter_time_dict)
 
+
+
     absRunningImps = [abs(number) for number in running_imps]
-    positiveornegative = sum(running_imps)
+    positiveornegative = get_sum(running_imps)
     if positiveornegative < 0:
-        returned_number = -min(absRunningImps)
+        returned_number = min(absRunningImps) * -1
     else:
         returned_number = min(absRunningImps)
 

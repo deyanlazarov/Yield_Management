@@ -216,9 +216,9 @@ class Ym():
         elif daypart == "Weekend":
             hour_options = options[:13]
         elif daypart == "Daytime":
-            hour_options = options[2:7]
+            hour_options = options[2:8]
         elif daypart == "Early Fringe":
-            hour_options = options[7:10]
+            hour_options = options[8:11]
         else:
             hour_options = options[14:]
         return hour_options

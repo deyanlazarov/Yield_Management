@@ -71,7 +71,7 @@ def prepare_frame(current_frame, daypart):
     current_frame.drop(labels=['Primary Product Category'], axis=1, inplace=True)
     current_frame.insert(10, 'Primary Product Category', military)
     current_frame['Derived Imps'].fillna(0, inplace=True)
-    current_frame[' Primary Demo'].fillna('M21-34', inplace=True)
+    current_frame[' Primary Demo'].fillna('M2-5', inplace=True)
     return current_frame
 
 
