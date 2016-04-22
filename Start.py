@@ -48,8 +48,11 @@ def place_placed_spots(spots_frame, id_list, demo_frame, first, time_dict, spots
         if spots_frame.iloc[x][3] != "Not Yet Placed":
             needed_location = id_list.index(int(spots_frame.iloc[x][3]))
             needed_demo = np.where(first == spots_frame.iloc[x][7])[0][0]
-            current_imps_deficit = -spots_frame.iloc[x][8] + (
-                demo_frame.iloc[needed_location][needed_demo + 1] * float(spots_frame.iloc[x][6]))
+            if spots_frame.iloc[x][8] > 0:
+                current_imps_deficit = -spots_frame.iloc[x][8] + (
+                    demo_frame.iloc[needed_location][needed_demo + 1] * float(spots_frame.iloc[x][6]))
+            else:
+                current_imps_deficit = 0
             spots_list[needed_location].append(
                 (spots_frame.iloc[x][2], spots_frame.iloc[x][10], str(spots_frame.iloc[x][1]) + '**',
                  spots_frame.iloc[x][6],
@@ -97,8 +100,11 @@ def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot
             # Find the position in id_list where that show is
             current_location = id_list.index(current_show)
             # Take that location and add to it the current spots information since it should go in that show
-            current_imps_deficit = round(-imps +
-                                         (demo_data_frame.iloc[potentials][current_index] * float(length_of_spot)), 2)
+            if imps > 0:
+                current_imps_deficit = round(-imps +
+                                            (demo_data_frame.iloc[potentials][current_index] * float(length_of_spot)), 2)
+            else:
+                current_imps_deficit = 0
             spots_lists[current_location].append(
                 (advertiser.strip(), product.strip(), spot_id, length_of_spot, str(current_imps_deficit)))
             # Figure out the impressions difference and add it to the running total
