@@ -239,6 +239,8 @@ class Ym():
         for items in root.grid_slaves():
             items.grid_forget()
 
+
+
         winning = max(d, key=d.get)
 
         returned = finish(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list,

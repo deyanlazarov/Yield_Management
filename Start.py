@@ -27,7 +27,7 @@ def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_li
             else:
                 running_imps_total += current_imps
             if len(unplaced_spots) > aggressive_factor:
-                return 80000, len(unplaced_spots)
+                return -80000, len(unplaced_spots)
         else:
             pass
 
@@ -130,10 +130,7 @@ def start(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, t
     # else:
     #     returned_number = min(absRunningImps)
     #
-    # unplaced_spots = pd.Series(
-    #     place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps,
-    #                 absRunningImps.index(min(absRunningImps)), True, after_placed_imps_shortfall, aggressive_factor))
-    #
+
 
 
     return trial, running_imps[0]
@@ -148,16 +145,14 @@ def finish(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, 
     # else:
     #     returned_number = min(absRunningImps)
 
-    unplaced_spots = pd.Series(
-        place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list,
-                    trial, True, after_placed_imps_shortfall, aggressive_factor))
+    unplaced_spots = place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list,
+                    trial, True, after_placed_imps_shortfall, aggressive_factor)
 
     # Save the resulting list to a csv file for placing
     os.chdir(ratings_path)
     os.chdir('../Completed')
     final_spots = pd.DataFrame(spots_lists)
     final_spots = final_spots.transpose()
-    final_spots['Unplaced'] = unplaced_spots
+    final_spots['Unplaced'] = pd.Series(unplaced_spots[1])
     final_spots.to_csv(daypart + '.csv')
-
     return unplaced_spots[0], len(unplaced_spots[1])
