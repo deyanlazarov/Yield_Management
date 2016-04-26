@@ -1,17 +1,12 @@
 import pandas as pd
-from itertools import repeat
 import numpy as np
-from Demo_List_Names import sum_dict_names
-from Preempt_Credit import preempt_credit_names
-from Ratings_Import import import_ratings
 from copy import deepcopy
 import os
-from tkinter import *
-from tkinter import ttk
 
 
 def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_list, running_imps,
                 random_trial, keep_imps, after_placed_imps, aggressive_factor):
+    print('here')
     np.random.seed(random_trial)
     spots_list['Random'] = np.random.uniform(0.0, 10.0, len(spots_list))
     spots_list = spots_list.sort_values('Random', ascending=False)
@@ -125,58 +120,14 @@ def get_sum(running_imps):
     return counter
 
 
-def start(daypart, number_of_trials, aggressive_factor, time_dict, ratings_path, spots_path, root):
-    # Combine Ratings Projection/Actual Files to get the list of actual shows that we can
-    # place commercials in
-
-    popup = Toplevel(root)
-    progressbar = ttk.Progressbar(popup,
-                                  orient=HORIZONTAL, length=200, mode='determinate')
-    progressbar.grid(row=1, column=0)
-    progressbar['value'] = 0
-    progressbar['maximum'] = number_of_trials
-
-    frame = import_ratings(daypart, ratings_path)
-    # Create a blank dictionary and then fill it with the rows from frame and the number of seconds
-    # available for commercials
-    id_list = frame['ID'].tolist()
-    # Create List Lists that will hold the id_list plus all of the spots (in tuples) that are being
-    # placed in that show
-    spots_lists = [[] for i in repeat(None, len(id_list))]
-    for x in range(0, len(id_list)):
-        spots_lists[x].append(str(id_list[x]) + ' ')
-    spots_frame = preempt_credit_names(daypart, spots_path)
-
-    first = spots_frame[' Primary Demo'].unique()
-
-    # Here we create a new dataframe that is going to hold all of the used demos and their
-    # impressions for each individual demo.
-    demo_frame = pd.DataFrame()
-    demo_frame['ID'] = frame['ID']
-    for demo_cats in first:
-        demo_frame[demo_cats] = frame[sum_dict_names[demo_cats]].sum(axis=1) / 30
-
-    demo_list = list(first)
-
-    running_imps = []
+def start(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps, trial, after_placed_imps_shortfall, aggressive_factor, ratings_path):
 
 
 
-    after_placed_imps_shortfall = place_placed_spots(spots_frame, id_list, demo_frame, first, time_dict,
-                                                     spots_lists)
+    place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps, trial,
+                False, after_placed_imps_shortfall, aggressive_factor)
 
-    starter_time_dict = deepcopy(time_dict)
-    starter_spots_list = deepcopy(spots_lists)
 
-    for trial in range(0, number_of_trials):
-        place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps,
-                    trial, False, after_placed_imps_shortfall, aggressive_factor)
-
-        progressbar['value'] = trial
-        progressbar.update()
-
-        spots_lists = deepcopy(starter_spots_list)
-        time_dict = deepcopy(starter_time_dict)
 
 
 
@@ -191,7 +142,7 @@ def start(daypart, number_of_trials, aggressive_factor, time_dict, ratings_path,
         place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps,
                     absRunningImps.index(min(absRunningImps)), True, after_placed_imps_shortfall, aggressive_factor))
 
-    popup.destroy()
+
 
     # Save the resulting list to a csv file for placing
     os.chdir(ratings_path)
@@ -199,7 +150,7 @@ def start(daypart, number_of_trials, aggressive_factor, time_dict, ratings_path,
     final_spots = pd.DataFrame(spots_lists)
     final_spots = final_spots.transpose()
     final_spots['Unplaced'] = unplaced_spots
-    final_spots.to_csv(daypart + '.csv')
+    final_spots.to_csv('Prime 2' + '.csv')
 
     returned_list = [returned_number, len(unplaced_spots)]
 

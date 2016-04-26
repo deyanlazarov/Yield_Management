@@ -1,9 +1,13 @@
 from tkinter import *
 from tkinter import ttk
-from Start import start
+from Demo_List_Names import sum_dict_names
+from Preempt_Credit import preempt_credit_names
+from Ratings_Import import import_ratings
+from Start import start, place_placed_spots, place_spots
 from itertools import repeat
 import configparser
 import os.path
+import pandas as pd
 
 
 class DefaultEdit():
@@ -200,10 +204,34 @@ class Ym():
                         self.config['DEFAULT']['SPOTS_PATH'])
 
     def calculate(self):
+
+        frame = import_ratings(self.daypart_variable.get(), self.config['DEFAULT']['RATINGS_PATH'])
+        id_list = frame['ID'].tolist()
+        spots_lists = [[] for i in repeat(None, len(id_list))]
+        for x in range(0, len(id_list)):
+            spots_lists[x].append(str(id_list[x]) + ' ')
+        spots_frame = preempt_credit_names(self.daypart_variable.get(), self.config['DEFAULT']['SPOTS_PATH'])
+        first = spots_frame[' Primary Demo'].unique()
+        demo_frame = pd.DataFrame()
+        demo_frame['ID'] = frame['ID']
+        for demo_cats in first:
+            demo_frame[demo_cats] = frame[sum_dict_names[demo_cats]].sum(axis=1) / 30
+
+        demo_list = list(first)
+
+        running_imps = []
+
         time_dict = dict(zip(self.get_hours_from_daypart(self.daypart_variable.get()),
                              repeat(int(self.config['DEFAULT']['DEFAULT_POTENTIAL']))))
-        returned_list = start(self.daypart_variable.get(), self.v.get(), self.aggressive.get(), time_dict,
-                              self.config['DEFAULT']['RATINGS_PATH'], self.config['DEFAULT']['SPOTS_PATH'], root)
+
+        after_placed_imps_shortfall = place_placed_spots(spots_frame, id_list, demo_frame, first, time_dict,
+                                                         spots_lists)
+
+        place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps, 1,
+                False, after_placed_imps_shortfall, self.aggressive)
+
+        returned_list = start(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps,
+                              1, after_placed_imps_shortfall, self.aggressive, self.config['DEFAULT']['RATINGS_PATH'])
         for items in root.grid_slaves():
             items.grid_forget()
         Finished(root, returned_list, self.daypart_variable.get())
