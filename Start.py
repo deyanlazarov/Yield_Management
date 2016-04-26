@@ -4,9 +4,8 @@ from copy import deepcopy
 import os
 
 
-def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_list, running_imps,
+def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_list,
                 random_trial, keep_imps, after_placed_imps, aggressive_factor):
-    print('here')
     np.random.seed(random_trial)
     spots_list['Random'] = np.random.uniform(0.0, 10.0, len(spots_list))
     spots_list = spots_list.sort_values('Random', ascending=False)
@@ -28,13 +27,11 @@ def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_li
             else:
                 running_imps_total += current_imps
             if len(unplaced_spots) > aggressive_factor:
-                running_imps.append(80000)
-                return
+                return 80000, len(unplaced_spots)
         else:
             pass
 
-    running_imps.append(running_imps_total)
-    return unplaced_spots
+    return running_imps_total, unplaced_spots
 
 
 def place_placed_spots(spots_frame, id_list, demo_frame, first, time_dict, spots_list):
@@ -97,7 +94,8 @@ def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot
             # Take that location and add to it the current spots information since it should go in that show
             if imps > 0:
                 current_imps_deficit = round(-imps +
-                                            (demo_data_frame.iloc[potentials][current_index] * float(length_of_spot)), 2)
+                                             (demo_data_frame.iloc[potentials][current_index] * float(length_of_spot)),
+                                             2)
             else:
                 current_imps_deficit = 0
             spots_lists[current_location].append(
@@ -120,29 +118,39 @@ def get_sum(running_imps):
     return counter
 
 
-def start(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps, trial, after_placed_imps_shortfall, aggressive_factor, ratings_path):
+def start(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, trial, after_placed_imps_shortfall,
+          aggressive_factor):
+    running_imps = place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, trial,
+                               False, after_placed_imps_shortfall, aggressive_factor)
+
+    # absRunningImps = [abs(number) for number in running_imps]
+    # positiveornegative = get_sum(running_imps)
+    # if positiveornegative < 0:
+    # returned_number = min(absRunningImps) * -1
+    # else:
+    #     returned_number = min(absRunningImps)
+    #
+    # unplaced_spots = pd.Series(
+    #     place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps,
+    #                 absRunningImps.index(min(absRunningImps)), True, after_placed_imps_shortfall, aggressive_factor))
+    #
 
 
-
-    place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps, trial,
-                False, after_placed_imps_shortfall, aggressive_factor)
+    return trial, running_imps[0]
 
 
-
-
-
-    absRunningImps = [abs(number) for number in running_imps]
-    positiveornegative = get_sum(running_imps)
-    if positiveornegative < 0:
-        returned_number = min(absRunningImps) * -1
-    else:
-        returned_number = min(absRunningImps)
+def finish(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, trial, after_placed_imps_shortfall,
+           aggressive_factor, ratings_path, daypart):
+    # absRunningImps = [abs(number) for number in running_imps]
+    # positiveornegative = get_sum(running_imps)
+    # if positiveornegative < 0:
+    # returned_number = min(absRunningImps) * -1
+    # else:
+    #     returned_number = min(absRunningImps)
 
     unplaced_spots = pd.Series(
-        place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps,
-                    absRunningImps.index(min(absRunningImps)), True, after_placed_imps_shortfall, aggressive_factor))
-
-
+        place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list,
+                    trial, True, after_placed_imps_shortfall, aggressive_factor))
 
     # Save the resulting list to a csv file for placing
     os.chdir(ratings_path)
@@ -150,8 +158,6 @@ def start(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, r
     final_spots = pd.DataFrame(spots_lists)
     final_spots = final_spots.transpose()
     final_spots['Unplaced'] = unplaced_spots
-    final_spots.to_csv('Prime 2' + '.csv')
+    final_spots.to_csv(daypart + '.csv')
 
-    returned_list = [returned_number, len(unplaced_spots)]
-
-    return returned_list
+    return unplaced_spots[0], len(unplaced_spots[1])

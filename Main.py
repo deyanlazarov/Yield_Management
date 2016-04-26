@@ -3,11 +3,13 @@ from tkinter import ttk
 from Demo_List_Names import sum_dict_names
 from Preempt_Credit import preempt_credit_names
 from Ratings_Import import import_ratings
-from Start import start, place_placed_spots, place_spots
+from Start import start, place_placed_spots, finish
 from itertools import repeat
 import configparser
 import os.path
 import pandas as pd
+from multiprocessing import Pool
+import operator
 
 
 class DefaultEdit():
@@ -71,11 +73,11 @@ class Finished():
         self.root.config(bg="#D3D3D3")
 
         self.code_label = Label(master, bg="#D3D3D3", text='You had a imps overage or shortage of ' + str(
-                                round(returned_list[0], 1)) + ' and ' + str(returned_list[1]) + ' unplaced spots.',
+            round(returned_list[0], 1)) + ' and ' + str(returned_list[1]) + ' unplaced spots.',
                                 font=("Helvetica", 14)).grid(row=1, columnspan=4, pady=(150, 0), padx=(30, 0))
         self.code_label = Label(master, bg="#D3D3D3",
                                 text='Your results can be found in a file called ' + daypart +
-                                '.csv which will be found in your Completed folder',
+                                     '.csv which will be found in your Completed folder',
                                 font=("Helvetica", 10)).grid(row=2, columnspan=4, pady=(0, 0), padx=(30, 0))
 
 
@@ -181,14 +183,14 @@ class Ym():
                                                                                            columnspan=2,
                                                                                            pady=(35, 0))
         ttk.Radiobutton(master, text="Moderate", variable=self.aggressive, value=2).grid(row=2, column=1,
-                                                                                           columnspan=2,
-                                                                                           pady=(35, 0))
+                                                                                         columnspan=2,
+                                                                                         pady=(35, 0))
         ttk.Radiobutton(master, text="Conservative", variable=self.aggressive, value=1).grid(row=2, column=2,
-                                                                                               columnspan=2,
-                                                                                               pady=(35, 0))
+                                                                                             columnspan=2,
+                                                                                             pady=(35, 0))
         self.aggressive.set(1)
 
-        self.configure = ttk.Button(master, text="Customize Potential", command=self.configure, 
+        self.configure = ttk.Button(master, text="Customize Potential", command=self.configure,
                                     width=48).grid(column=0, columnspan=2, row=3, pady=(40, 0))
         self.calculate = ttk.Button(master, text="Okay", command=self.calculate, width=48).grid(column=2, columnspan=2,
                                                                                                 row=3, pady=(40, 0))
@@ -222,19 +224,28 @@ class Ym():
         running_imps = []
 
         time_dict = dict(zip(self.get_hours_from_daypart(self.daypart_variable.get()),
-                             repeat(int(self.config['DEFAULT']['DEFAULT_POTENTIAL']))))
+            repeat(int(self.config['DEFAULT']['DEFAULT_POTENTIAL']))))
 
         after_placed_imps_shortfall = place_placed_spots(spots_frame, id_list, demo_frame, first, time_dict,
                                                          spots_lists)
 
-        place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps, 1,
-                False, after_placed_imps_shortfall, self.aggressive)
-
-        returned_list = start(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, running_imps,
-                              1, after_placed_imps_shortfall, self.aggressive, self.config['DEFAULT']['RATINGS_PATH'])
+        with Pool(4) as p:
+            returned = p.starmap(start,
+                                 zip(repeat(spots_lists), repeat(time_dict), repeat(id_list), repeat(spots_frame),
+                                     repeat(demo_frame), repeat(demo_list), range(self.v.get()),
+                                     repeat(after_placed_imps_shortfall), repeat(self.aggressive.get()),
+                                     ), chunksize=1)
+        d = dict(returned)
         for items in root.grid_slaves():
             items.grid_forget()
-        Finished(root, returned_list, self.daypart_variable.get())
+
+        winning = max(d, key=d.get)
+
+        returned = finish(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list,
+                          winning, after_placed_imps_shortfall, self.aggressive.get(),
+                          self.config['DEFAULT']['RATINGS_PATH'], self.daypart_variable.get())
+
+        Finished(root, returned, self.daypart_variable.get())
 
     @staticmethod
     def get_hours_from_daypart(daypart):
@@ -268,12 +279,12 @@ class Ym():
             options_day = ['Weekend', 'Prime 1', 'Prime 2']
             for daypart in options_day:
                 menu.add_command(label=daypart, command=lambda value=daypart:
-                                 self.daypart_variable.set(value))
+                self.daypart_variable.set(value))
         else:
             options_day = ["Daytime", "Early Fringe", "Prime Access", 'Prime 1', 'Prime 2']
             for daypart in options_day:
                 menu.add_command(label=daypart, command=lambda value=daypart:
-                                 self.daypart_variable.set(value))
+                self.daypart_variable.set(value))
 
 
 if __name__ == "__main__":
