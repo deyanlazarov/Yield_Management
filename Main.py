@@ -117,12 +117,12 @@ class ChangePotential():
     def calculate(self):
         for keys in self.list_of_boxes:
             self.list_of_boxes[keys] = int(self.list_of_boxes[keys].get())
-        frame = import_ratings(self.daypart_variable.get(), self.config['DEFAULT']['RATINGS_PATH'])
+        frame = import_ratings(self.daypart, self.ratings_path)
         id_list = frame['ID'].tolist()
         spots_lists = [[] for i in repeat(None, len(id_list))]
         for x in range(0, len(id_list)):
             spots_lists[x].append(str(id_list[x]) + ' ')
-        spots_frame = preempt_credit_names(self.daypart_variable.get(), self.config['DEFAULT']['SPOTS_PATH'])
+        spots_frame = preempt_credit_names(self.daypart, self.spots_path)
         first = spots_frame[' Primary Demo'].unique()
         demo_frame = pd.DataFrame()
         demo_frame['ID'] = frame['ID']
@@ -133,17 +133,15 @@ class ChangePotential():
 
         running_imps = []
 
-        time_dict = dict(zip(self.get_hours_from_daypart(self.daypart_variable.get()),
-            repeat(int(self.config['DEFAULT']['DEFAULT_POTENTIAL']))))
 
-        after_placed_imps_shortfall = place_placed_spots(spots_frame, id_list, demo_frame, first, time_dict,
+        after_placed_imps_shortfall = place_placed_spots(spots_frame, id_list, demo_frame, first, self.list_of_boxes,
                                                          spots_lists)
 
         with Pool(4) as p:
             returned = p.starmap(start,
                                  zip(repeat(spots_lists), repeat(self.list_of_boxes), repeat(id_list), repeat(spots_frame),
-                                     repeat(demo_frame), repeat(demo_list), range(self.v.get()),
-                                     repeat(after_placed_imps_shortfall), repeat(self.aggressive.get()),
+                                     repeat(demo_frame), repeat(demo_list), range(self.number_of_trials),
+                                     repeat(after_placed_imps_shortfall), repeat(self.aggressive),
                                      ), chunksize=1)
         d = dict(returned)
         for items in root.grid_slaves():
@@ -153,11 +151,11 @@ class ChangePotential():
 
         winning = max(d, key=d.get)
 
-        returned = finish(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list,
-                          winning, after_placed_imps_shortfall, self.aggressive.get(),
-                          self.config['DEFAULT']['RATINGS_PATH'], self.daypart_variable.get())
+        returned = finish(spots_lists, self.list_of_boxes, id_list, spots_frame, demo_frame, demo_list,
+                          winning, after_placed_imps_shortfall, self.aggressive,
+                          self.ratings_path, self.daypart)
 
-        Finished(root, returned, self.daypart_variable.get())
+        Finished(root, returned, self.daypart)
 
 
 class Ym():
