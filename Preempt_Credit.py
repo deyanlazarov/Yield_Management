@@ -2,6 +2,8 @@ __author__ = '143740'
 import pandas as pd
 import time
 import glob
+import LiabilityClean
+import numpy as np
 
 
 def convert_to_seconds(current_time):
@@ -47,7 +49,9 @@ def prepare_frame(current_frame, daypart):
     current_frame = current_frame[(current_frame.MG.isnull() == True) | (current_frame.MG == 'M')]
     current_frame = current_frame[(current_frame.CR != True)]
     list_of_desired_columns = ['Air Date', 'Spot ID', 'Advertiser', 'Hit Time', 'Start Time', 'End Time',
-                               'Length', ' Primary Demo', 'Unit Cost', 'Proposal Qtr. CPM', 'Primary Product Category']
+                               'Length', ' Primary Demo', 'Unit Cost', 'Proposal Qtr. CPM', 'Primary Product Category',
+                               'Order #']
+
     current_frame = current_frame[list_of_desired_columns]
     current_frame['Length'] = current_frame.apply(lambda x: convert_to_seconds(x['Length']), axis=1)
     dollar_conversion = ['Unit Cost', 'Proposal Qtr. CPM']
@@ -67,11 +71,17 @@ def prepare_frame(current_frame, daypart):
     current_frame.drop('Unit Cost', axis=1, inplace=True)
     current_frame.drop('Proposal Qtr. CPM', axis=1, inplace=True)
     current_frame.reset_index(inplace=True, drop=True)
-    military = current_frame['Primary Product Category']
-    current_frame.drop(labels=['Primary Product Category'], axis=1, inplace=True)
-    current_frame.insert(10, 'Primary Product Category', military)
+    list_of_desired_columns = ['Air Date', 'Spot ID', 'Advertiser', 'Hit Time', 'Start Time', 'End Time',
+                               'Length', ' Primary Demo', 'Derived Imps', 'Primary Product Category', 'Daypart',
+                               'Order #']
+    current_frame = current_frame[list_of_desired_columns]
     current_frame['Derived Imps'].fillna(0, inplace=True)
     current_frame[' Primary Demo'].fillna('P25-54', inplace=True)
+    current_frame = pd.merge(current_frame, LiabilityClean.combine_liability_and_orders(), left_on='Order #',
+                             right_on='Order', how='left')
+    current_frame.loc[pd.isnull(current_frame.Order), 'Imps'] = 80000
+    current_frame.drop('Order', axis=1, inplace=True)
+    current_frame['Imps'].fillna(0, inplace=True)
     return current_frame
 
 

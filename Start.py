@@ -6,9 +6,9 @@ import os
 
 def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_list,
                 random_trial, keep_imps, after_placed_imps, aggressive_factor):
-    np.random.seed(random_trial)
-    spots_list['Random'] = np.random.uniform(0.0, 10.0, len(spots_list))
-    spots_list = spots_list.sort_values('Random', ascending=False)
+    # np.random.seed(random_trial)
+    # spots_list['Random'] = np.random.uniform(0.0, 10.0, len(spots_list))
+    spots_list = spots_list.sort_values('Imps', ascending=True)
     # [0][0] - Imps  [0][1] - Advertiser  [0][2] - Demo  [0][3] - Length
     running_imps_total = after_placed_imps
     unplaced_spots = []
@@ -19,7 +19,7 @@ def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_li
             current_imps = find_best_fit(spots_lists, time_dict, id_list, demo_frame, spots_list.iloc[x][7],
                                          spots_list.iloc[x][6],
                                          spots_list.iloc[x][2], spots_list.iloc[x][8], spots_list.iloc[x][1],
-                                         demo_list, False, spots_list.iloc[x][10])
+                                         demo_list, False, spots_list.iloc[x][10], spots_list.iloc[x][12])
             if isinstance(current_imps, str) and keep_imps:
                 unplaced_spots.append(current_imps)
             elif isinstance(current_imps, str):
@@ -62,15 +62,15 @@ def plus_minus(demo_frame, id_list, current_hour, current_demo, current_imps, le
 
 def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot, length_of_spot, advertiser, imps,
                   spot_id, list_of_demos,
-                  best_available, product):
+                  best_available, product, imps_deficit_or_surplus):
     # Sort passed dataframe by the appropriate demo if best_available is True
-    if best_available:
-        demo_data_frame = demo_data_frame.sort_values(current_spot, ascending=False)
+
+    if imps_deficit_or_surplus >= 0:
+        demo_data_frame = demo_data_frame.sort_values(current_spot, ascending=True)
     else:
-        demo_data_frame['+/-'] = demo_data_frame.apply(lambda x:
-                                                       plus_minus(demo_data_frame, id_list, x['ID'], current_spot, imps,
-                                                                  length_of_spot), axis=1)
-        demo_data_frame.sort_values(['+/-'], ascending=True, inplace=True)
+        demo_data_frame = demo_data_frame.sort_values(current_spot, ascending=False)
+
+
 
     current_index = list_of_demos.index(current_spot) + 1
     # Find the string of the show name that has the highest demo

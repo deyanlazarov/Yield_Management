@@ -155,6 +155,8 @@ class ChangePotential():
                           winning, after_placed_imps_shortfall, self.aggressive,
                           self.ratings_path, self.daypart)
 
+        for widget in root.winfo_children():
+            widget.destroy()
         Finished(root, returned, self.daypart)
 
 
