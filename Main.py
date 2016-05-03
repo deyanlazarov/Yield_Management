@@ -215,7 +215,7 @@ class Ym():
         self.v.set(1000)
 
         self.aggressive = IntVar()
-        ttk.Radiobutton(master, text="Aggressive", variable=self.aggressive, value=3).grid(row=2, column=0,
+        ttk.Radiobutton(master, text="Aggressive", variable=self.aggressive, value=50).grid(row=2, column=0,
                                                                                            columnspan=2,
                                                                                            pady=(35, 0))
         ttk.Radiobutton(master, text="Moderate", variable=self.aggressive, value=2).grid(row=2, column=1,

@@ -79,7 +79,7 @@ def prepare_frame(current_frame, daypart):
     current_frame[' Primary Demo'].fillna('P25-54', inplace=True)
     current_frame = pd.merge(current_frame, LiabilityClean.combine_liability_and_orders(), left_on='Order #',
                              right_on='Order', how='left')
-    current_frame.loc[pd.isnull(current_frame.Order), 'Imps'] = 80000
+    current_frame.loc[pd.isnull(current_frame.Order), 'Imps'] = 888888
     current_frame.drop('Order', axis=1, inplace=True)
     current_frame['Imps'].fillna(0, inplace=True)
     return current_frame
