@@ -2,9 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 
-# TODO Place High Advertiser First
-# TODO Place High Category Second
-# TODO Place Spots with Slightly Restricted Start/End Times
+
 # TODO Limit the Amount of Pairs Per Hour?
 
 
@@ -13,40 +11,54 @@ def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_li
     # np.random.seed(random_trial)
     # spots_list['Random'] = np.random.uniform(0.0, 10.0, len(spots_list))
     in_tact = spots_list
-    spots_list = spots_list[spots_list['Primary Product Category'] == 'AUTO: DOMESTIC & FOREIGN']
-    spots_list = spots_list.sort_values('Imps', ascending=False)
-    # [0][0] - Imps  [0][1] - Advertiser  [0][2] - Demo  [0][3] - Length
+    preplace_list = ['Advertiser', 'Primary Product Category']
+    high_qualifier = [1.25, 3]
     running_imps_total = after_placed_imps
     unplaced_spots = []
-    # Find the best available place for each spot in the dataframe
+
+    # Get list of high categories and then loop through the list placing those
+    for j in preplace_list:
+        l = 0
+        spots_list['Frequency'] = spots_list.groupby(j)[j].transform('count')
+        highs = spots_list[spots_list['Frequency'] >= (len(time_dict) * high_qualifier[l])]
+        l += 1
+        high_numbers = list(highs[j].unique())
+
+        for y in high_numbers:
+            spots_list = spots_list[spots_list[j] == y]
+            spots_list = spots_list.sort_values('Imps', ascending=False)
+            # Find the best available place for each spot in the dataframe
+            for x in range(0, len(spots_list['Length'])):
+
+                if spots_list.iloc[x][3] == "Not Yet Placed":
+                    current_imps = find_best_fit(spots_lists, time_dict, id_list, demo_frame, spots_list.iloc[x][7],
+                                                 spots_list.iloc[x][6],
+                                                 spots_list.iloc[x][2], spots_list.iloc[x][8], spots_list.iloc[x][1],
+                                                 demo_list, False, spots_list.iloc[x][9], spots_list.iloc[x][12],
+                                                 spots_list.iloc[x][4], spots_list.iloc[x][5])
+                    if isinstance(current_imps, str) and keep_imps:
+                        unplaced_spots.append(current_imps)
+                    elif isinstance(current_imps, str):
+                        unplaced_spots.append(current_imps)
+                    else:
+                        running_imps_total += current_imps
+                    if len(unplaced_spots) > aggressive_factor:
+                        return -80000, len(unplaced_spots)
+                else:
+                    pass
+
+            spots_list = in_tact.drop(in_tact[in_tact[j] == y].index)
+            spots_list = spots_list.sort_values('Imps', ascending=False)
+            in_tact = spots_list
+
     for x in range(0, len(spots_list['Length'])):
 
         if spots_list.iloc[x][3] == "Not Yet Placed":
             current_imps = find_best_fit(spots_lists, time_dict, id_list, demo_frame, spots_list.iloc[x][7],
                                          spots_list.iloc[x][6],
                                          spots_list.iloc[x][2], spots_list.iloc[x][8], spots_list.iloc[x][1],
-                                         demo_list, False, spots_list.iloc[x][9], spots_list.iloc[x][12])
-            if isinstance(current_imps, str) and keep_imps:
-                unplaced_spots.append(current_imps)
-            elif isinstance(current_imps, str):
-                unplaced_spots.append(current_imps)
-            else:
-                running_imps_total += current_imps
-            if len(unplaced_spots) > aggressive_factor:
-                return -80000, len(unplaced_spots)
-        else:
-            pass
-
-    spots_list = in_tact.drop(in_tact[in_tact['Primary Product Category'] == 'AUTO: DOMESTIC & FOREIGN'].index)
-    spots_list = spots_list.sort_values('Imps', ascending=False)
-
-    for x in range(0, len(spots_list['Length'])):
-
-        if spots_list.iloc[x][3] == "Not Yet Placed":
-            current_imps = find_best_fit(spots_lists, time_dict, id_list, demo_frame, spots_list.iloc[x][7],
-                                         spots_list.iloc[x][6],
-                                         spots_list.iloc[x][2], spots_list.iloc[x][8], spots_list.iloc[x][1],
-                                         demo_list, False, spots_list.iloc[x][9], spots_list.iloc[x][12])
+                                         demo_list, False, spots_list.iloc[x][9], spots_list.iloc[x][12],
+                                         spots_list.iloc[x][4], spots_list.iloc[x][5])
             if isinstance(current_imps, str) and keep_imps:
                 unplaced_spots.append(current_imps)
             elif isinstance(current_imps, str):
@@ -89,10 +101,7 @@ def plus_minus(demo_frame, id_list, current_hour, current_demo, current_imps, le
 
 def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot, length_of_spot, advertiser, imps,
                   spot_id, list_of_demos,
-                  best_available, product, imps_deficit_or_surplus):
-    # Sort passed dataframe by the appropriate demo if best_available is True
-
-
+                  best_available, product, imps_deficit_or_surplus, start_time, end_time):
     if (imps_deficit_or_surplus <= 0) or (imps_deficit_or_surplus == 888888.0):
         demo_data_frame = demo_data_frame.sort_values(current_spot, ascending=True)
     else:
@@ -116,7 +125,13 @@ def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot
         # print("Too Many Spots in One Show: " + str(too_many))
         # print("Too Many Of the Same Kind of Product " + str(too_many_product))
         # print("Current Advertiser: " + advertiser.strip())
-        if time_dict[current_show] - length_of_spot >= 0 and not too_many and not too_many_product:
+
+        if end_time == 0:
+            end_time = 24
+
+        within_time = start_time <= int(current_show) <= end_time
+
+        if time_dict[current_show] - length_of_spot >= 0 and not too_many and not too_many_product and within_time:
             time_dict[current_show] = time_dict[current_show] - length_of_spot
             # Find the position in id_list where that show is
             current_location = id_list.index(current_show)
@@ -157,7 +172,7 @@ def start(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, t
     # if positiveornegative < 0:
     # returned_number = min(absRunningImps) * -1
     # else:
-    #     returned_number = min(absRunningImps)
+    # returned_number = min(absRunningImps)
     #
 
 
@@ -172,10 +187,10 @@ def finish(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, 
     # if positiveornegative < 0:
     # returned_number = min(absRunningImps) * -1
     # else:
-    #     returned_number = min(absRunningImps)
+    # returned_number = min(absRunningImps)
 
     unplaced_spots = place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list,
-                    trial, True, after_placed_imps_shortfall, aggressive_factor)
+                                 trial, True, after_placed_imps_shortfall, aggressive_factor)
 
     # Save the resulting list to a csv file for placing
     os.chdir(ratings_path)
