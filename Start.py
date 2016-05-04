@@ -3,9 +3,6 @@ import numpy as np
 import os
 
 
-# TODO Limit the Amount of Pairs Per Hour?
-
-
 def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_list,
                 random_trial, keep_imps, after_placed_imps, aggressive_factor):
     # np.random.seed(random_trial)
@@ -85,7 +82,7 @@ def place_placed_spots(spots_frame, id_list, demo_frame, first, time_dict, spots
             else:
                 current_imps_deficit = 0
             spots_list[needed_location].append(
-                (spots_frame.iloc[x][2], spots_frame.iloc[x][9], str(spots_frame.iloc[x][1]) + '**',
+                (spots_frame.iloc[x][2], spots_frame.iloc[x][9], str(spots_frame.iloc[x][1]) + '#',
                  spots_frame.iloc[x][6],
                  str(round(current_imps_deficit, 2))))
             time_dict[int(spots_frame.iloc[x][3])] = time_dict[int(spots_frame.iloc[x][3])] - spots_frame.iloc[x][6]
@@ -118,20 +115,30 @@ def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot
         else:
             too_many_product = False
         too_many = sum(t[0] == advertiser.strip() for t in spots_lists[current_location]) >= 2
-        # current_imps_deficit = -imps + (demo_data_frame.iloc[potentials][current_index] * float(length_of_spot))
-        # Subtract that spots length from that shows current length and
-        # see if it has room for one more spot - not going over two
-        # I tried not having any positives on any spots, but it was worse.  current_imps_deficit < 0
-        # print("Too Many Spots in One Show: " + str(too_many))
-        # print("Too Many Of the Same Kind of Product " + str(too_many_product))
-        # print("Current Advertiser: " + advertiser.strip())
 
         if end_time == 0:
             end_time = 24
 
         within_time = start_time <= int(current_show) <= end_time
+        try:
+            previous_hour_total = sum(t[0] == advertiser.strip() for t in spots_lists[current_location - 1])
+        except IndexError:
+            previous_hour_total = 0
 
-        if time_dict[current_show] - length_of_spot >= 0 and not too_many and not too_many_product and within_time:
+        current_hour_total = sum(t[0] == advertiser.strip() for t in spots_lists[current_location])
+
+        try:
+            next_hour_total = sum(t[0] == advertiser.strip() for t in spots_lists[current_location + 1])
+        except IndexError:
+            next_hour_total = 0
+
+        if (previous_hour_total + current_hour_total > 2) or (current_hour_total + next_hour_total > 2):
+            spread_enough = False
+        else:
+            spread_enough = True
+
+        if time_dict[
+            current_show] - length_of_spot >= 0 and not too_many and not too_many_product and within_time and spread_enough:
             time_dict[current_show] = time_dict[current_show] - length_of_spot
             # Find the position in id_list where that show is
             current_location = id_list.index(current_show)
@@ -167,28 +174,11 @@ def start(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, t
     running_imps = place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, trial,
                                False, after_placed_imps_shortfall, aggressive_factor)
 
-    # absRunningImps = [abs(number) for number in running_imps]
-    # positiveornegative = get_sum(running_imps)
-    # if positiveornegative < 0:
-    # returned_number = min(absRunningImps) * -1
-    # else:
-    # returned_number = min(absRunningImps)
-    #
-
-
-
     return trial, running_imps[0]
 
 
 def finish(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, trial, after_placed_imps_shortfall,
            aggressive_factor, ratings_path, daypart):
-    # absRunningImps = [abs(number) for number in running_imps]
-    # positiveornegative = get_sum(running_imps)
-    # if positiveornegative < 0:
-    # returned_number = min(absRunningImps) * -1
-    # else:
-    # returned_number = min(absRunningImps)
-
     unplaced_spots = place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list,
                                  trial, True, after_placed_imps_shortfall, aggressive_factor)
 
