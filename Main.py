@@ -153,7 +153,7 @@ class ChangePotential():
         after_placed_imps_shortfall = place_placed_spots(spots_frame, id_list, demo_frame, first, self.list_of_boxes,
                                                          spots_lists)
 
-        with Pool(4) as p:
+        with Pool(2) as p:
             returned = p.starmap(start,
                                  zip(repeat(spots_lists), repeat(self.list_of_boxes), repeat(id_list),
                                      repeat(spots_frame),
@@ -256,7 +256,7 @@ class Ym():
         after_placed_imps_shortfall = place_placed_spots(spots_frame, id_list, demo_frame, first, time_dict,
                                                          spots_lists)
 
-        with Pool(4) as p:
+        with Pool(2) as p:
             returned = p.starmap(start,
                                  zip(repeat(spots_lists), repeat(time_dict), repeat(id_list), repeat(spots_frame),
                                      repeat(demo_frame), repeat(demo_list), range(1),

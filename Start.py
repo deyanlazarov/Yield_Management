@@ -1,6 +1,11 @@
 import pandas as pd
 import numpy as np
 import os
+import random
+
+
+def assign_random(imps):
+    return random.randrange(-5000, -101) if imps < -100 else imps
 
 
 def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_list,
@@ -47,10 +52,11 @@ def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_li
             spots_list = spots_list.sort_values('Imps', ascending=False)
             in_tact = spots_list
 
-
+    spots_list['Imps'] = spots_list.apply(lambda x: assign_random(x['Imps']), axis=1)
+    spots_list = spots_list.sort_values('Imps', ascending=False)
+    print(spots_list.tail(30))
 
     for x in range(0, len(spots_list['Length'])):
-
         if spots_list.iloc[x][3] == "Not Yet Placed":
             current_imps = find_best_fit(spots_lists, time_dict, id_list, demo_frame, spots_list.iloc[x][7],
                                          spots_list.iloc[x][6],
