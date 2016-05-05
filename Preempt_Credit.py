@@ -68,6 +68,8 @@ def prepare_frame(current_frame, daypart):
                                                         axis=1)
     current_frame['Daypart'] = current_frame.apply(lambda x: assign_day_part(x['Air Date'], x['Start Time']), axis=1)
     current_frame = current_frame.drop(current_frame[current_frame['Daypart'] != daypart].index)
+    if daypart == 'Daytime':
+        current_frame = current_frame.drop(current_frame[current_frame['Hit Time'] == '8'].index)
     current_frame.drop('Unit Cost', axis=1, inplace=True)
     current_frame.drop('Proposal Qtr. CPM', axis=1, inplace=True)
     current_frame.reset_index(inplace=True, drop=True)

@@ -5,8 +5,7 @@ import os
 
 def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_list,
                 random_trial, keep_imps, after_placed_imps, aggressive_factor):
-    # np.random.seed(random_trial)
-    # spots_list['Random'] = np.random.uniform(0.0, 10.0, len(spots_list))
+
     in_tact = spots_list
     preplace_list = ['Advertiser', 'Primary Product Category']
     high_qualifier = [1.25, 3]
@@ -47,6 +46,8 @@ def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_li
             spots_list = in_tact.drop(in_tact[in_tact[j] == y].index)
             spots_list = spots_list.sort_values('Imps', ascending=False)
             in_tact = spots_list
+
+
 
     for x in range(0, len(spots_list['Length'])):
 

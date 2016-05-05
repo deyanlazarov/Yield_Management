@@ -72,13 +72,30 @@ class Finished():
         self.root.wm_title("OptiEdit")
         self.root.config(bg="#D3D3D3")
 
-        self.code_label = Label(master, bg="#D3D3D3", text='You had a imps overage or shortage of ' + str(
-            round(returned_list[0], 1)) + ' and ' + str(returned_list[1]) + ' unplaced spots.',
-                                font=("Helvetica", 14)).grid(row=1, columnspan=4, pady=(150, 0), padx=(30, 0))
+        self.code_label = Label(master, bg="#D3D3D3", text='You had ' + str(returned_list[1]) + ' unplaced spots.',
+                                font=("Helvetica", 14)).grid(row=1, columnspan=4, pady=(130, 0), padx=(30, 0))
         self.code_label = Label(master, bg="#D3D3D3",
                                 text='Your results can be found in a file called ' + daypart +
                                      '.csv which will be found in your Completed folder',
                                 font=("Helvetica", 10)).grid(row=2, columnspan=4, pady=(0, 0), padx=(30, 0))
+        self.done = ttk.Button(master, text="I'm done!", command=self.done,
+                               width=48).grid(column=0, columnspan=3, row=3, pady=(40, 0), padx=(30, 0))
+        self.continue_on = ttk.Button(master, text="Let's Do More!", command=self.continue_on, width=48).grid(column=3,
+                                                                                                              columnspan=3,
+                                                                                                              row=3,
+                                                                                                              pady=(
+                                                                                                                  40, 0),
+                                                                                                              padx=(
+                                                                                                                  30, 0))
+
+
+    def done(self):
+        sys.exit()
+
+    def continue_on(self):
+        for widget in root.winfo_children():
+            widget.destroy()
+        Ym(self.root)
 
 
 class ChangePotential():
@@ -133,21 +150,19 @@ class ChangePotential():
 
         running_imps = []
 
-
         after_placed_imps_shortfall = place_placed_spots(spots_frame, id_list, demo_frame, first, self.list_of_boxes,
                                                          spots_lists)
 
         with Pool(4) as p:
             returned = p.starmap(start,
-                                 zip(repeat(spots_lists), repeat(self.list_of_boxes), repeat(id_list), repeat(spots_frame),
+                                 zip(repeat(spots_lists), repeat(self.list_of_boxes), repeat(id_list),
+                                     repeat(spots_frame),
                                      repeat(demo_frame), repeat(demo_list), range(self.number_of_trials),
                                      repeat(after_placed_imps_shortfall), repeat(self.aggressive),
                                      ), chunksize=1)
         d = dict(returned)
         for items in root.grid_slaves():
             items.grid_forget()
-
-
 
         winning = max(d, key=d.get)
 
@@ -194,42 +209,18 @@ class Ym():
         self.date = ttk.OptionMenu(master, self.day_variable, 'Choose Day Of Week', *options,
                                    command=self.update_daypart)
         self.date.config(width=30)
-        self.date.grid(row=0, column=0, columnspan=2, pady=40, padx=60)
+        self.date.grid(row=0, column=0, columnspan=2, pady=120, padx=60)
 
         # Add MenuOption to row 0, column 1
         self.daypart_variable = StringVar(master)
         self.daypart = ttk.OptionMenu(master, self.daypart_variable, 'Choose Daypart', 'Placeholder')
         self.daypart.config(width=30, state=DISABLED)
-        self.daypart.grid(row=0, column=2, columnspan=2, pady=40, padx=70)
-
-        self.v = IntVar()
-        ttk.Radiobutton(master, text="1 Iteration", variable=self.v, value=1).grid(row=1, column=0,
-                                                                                   pady=(35, 0))
-        ttk.Radiobutton(master, text="100 Iterations", variable=self.v, value=100).grid(row=1, column=1,
-                                                                                        pady=(35, 0))
-        ttk.Radiobutton(master, text="500 Iterations", variable=self.v, value=500).grid(row=1, column=2,
-                                                                                        pady=(35, 0))
-        ttk.Radiobutton(master, text="1000 Iterations", variable=self.v, value=1000).grid(row=1,
-                                                                                          column=3,
-                                                                                          pady=(35, 0))
-        self.v.set(1000)
-
-        self.aggressive = IntVar()
-        ttk.Radiobutton(master, text="Aggressive", variable=self.aggressive, value=50).grid(row=2, column=0,
-                                                                                           columnspan=2,
-                                                                                           pady=(35, 0))
-        ttk.Radiobutton(master, text="Moderate", variable=self.aggressive, value=2).grid(row=2, column=1,
-                                                                                         columnspan=2,
-                                                                                         pady=(35, 0))
-        ttk.Radiobutton(master, text="Conservative", variable=self.aggressive, value=1).grid(row=2, column=2,
-                                                                                             columnspan=2,
-                                                                                             pady=(35, 0))
-        self.aggressive.set(1)
+        self.daypart.grid(row=0, column=2, columnspan=2, pady=120, padx=70)
 
         self.configure = ttk.Button(master, text="Customize Potential", command=self.configure,
-                                    width=48).grid(column=0, columnspan=2, row=3, pady=(40, 0))
+                                    width=48).grid(column=0, columnspan=2, row=3, pady=(0, 0))
         self.calculate = ttk.Button(master, text="Okay", command=self.calculate, width=48).grid(column=2, columnspan=2,
-                                                                                                row=3, pady=(40, 0))
+                                                                                                row=3, pady=(0, 0))
 
         self.progress = ttk.Progressbar(master, orient="horizontal",
                                         length=200, mode="determinate").grid_forget()
@@ -237,7 +228,7 @@ class Ym():
     def configure(self):
         for items in root.grid_slaves():
             items.grid_forget()
-        ChangePotential(root, self.daypart_variable.get(), self.aggressive.get(), self.v.get(),
+        ChangePotential(root, self.daypart_variable.get(), 50, 1,
                         self.config['DEFAULT']['DEFAULT_POTENTIAL'], self.config['DEFAULT']['RATINGS_PATH'],
                         self.config['DEFAULT']['SPOTS_PATH'])
 
@@ -268,19 +259,17 @@ class Ym():
         with Pool(4) as p:
             returned = p.starmap(start,
                                  zip(repeat(spots_lists), repeat(time_dict), repeat(id_list), repeat(spots_frame),
-                                     repeat(demo_frame), repeat(demo_list), range(self.v.get()),
-                                     repeat(after_placed_imps_shortfall), repeat(self.aggressive.get()),
+                                     repeat(demo_frame), repeat(demo_list), range(1),
+                                     repeat(after_placed_imps_shortfall), repeat(50),
                                      ), chunksize=1)
         d = dict(returned)
         for items in root.grid_slaves():
             items.grid_forget()
 
-
-
         winning = max(d, key=d.get)
 
         returned = finish(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list,
-                          winning, after_placed_imps_shortfall, self.aggressive.get(),
+                          winning, after_placed_imps_shortfall, 50,
                           self.config['DEFAULT']['RATINGS_PATH'], self.daypart_variable.get())
 
         Finished(root, returned, self.daypart_variable.get())
