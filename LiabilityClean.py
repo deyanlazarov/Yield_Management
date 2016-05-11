@@ -17,6 +17,7 @@ def combine_liability_and_orders():
     orders_file = pd.concat(list_)
 
 
+
     orders_file = orders_file.merge(liability_file, on="Deal", how="left")
     orders_file.drop('Deal', axis=1, inplace=True)
     return orders_file

@@ -84,6 +84,17 @@ def prepare_frame(current_frame, daypart):
     current_frame.loc[pd.isnull(current_frame.Order), 'Imps'] = 888888
     current_frame.drop('Order', axis=1, inplace=True)
     current_frame['Imps'].fillna(0, inplace=True)
+
+    all_files = glob.glob('F:\\Traffic Logs\\TRAVEL\\Reports\\' + "/*.csv")
+    list_ = []
+    for file_ in all_files:
+        df = pd.read_csv(file_, index_col=None, header=0)
+        list_.append(df)
+    products_file = pd.concat(list_)
+
+    current_frame = pd.merge(current_frame, products_file, left_on='Primary Product Category',
+                             right_on='Pri. Prod. Category', how='left')
+
     return current_frame
 
 

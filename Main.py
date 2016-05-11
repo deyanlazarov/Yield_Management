@@ -138,7 +138,7 @@ class ChangePotential():
         id_list = frame['ID'].tolist()
         spots_lists = [[] for i in repeat(None, len(id_list))]
         for x in range(0, len(id_list)):
-            spots_lists[x].append(str(id_list[x]) + ' ')
+            spots_lists[x].append(str(id_list[x]) + '  ')
         spots_frame = preempt_credit_names(self.daypart, self.spots_path)
         first = spots_frame[' Primary Demo'].unique()
         demo_frame = pd.DataFrame()
@@ -238,7 +238,7 @@ class Ym():
         id_list = frame['ID'].tolist()
         spots_lists = [[] for i in repeat(None, len(id_list))]
         for x in range(0, len(id_list)):
-            spots_lists[x].append(str(id_list[x]) + ' ')
+            spots_lists[x].append(str(id_list[x]) + '  ')
         spots_frame = preempt_credit_names(self.daypart_variable.get(), self.config['DEFAULT']['SPOTS_PATH'])
         first = spots_frame[' Primary Demo'].unique()
         demo_frame = pd.DataFrame()
