@@ -28,21 +28,30 @@ def derived_imps(current_cost, current_CPM):
     return 0 if current_CPM == 0 else current_cost / current_CPM
 
 
-def assign_day_part(day_number, start_hour):
+def assign_day_part(day_number, start_hour, hit_time):
+    start_or_hit = int(start_hour) if hit_time == "Not Yet Placed" else int(hit_time)
     day_part = ""
-    if day_number >= 6 and start_hour < 20:
+    if day_number >= 6 and int(start_or_hit) < 20:
         day_part = "Weekend"
-    elif start_hour == 20:
+    elif start_or_hit == 20:
         day_part = "Prime 1"
-    elif start_hour < 15:
+    elif start_or_hit < 15:
         day_part = "Daytime"
-    elif start_hour < 18:
+    elif start_or_hit < 18:
         day_part = "Early Fringe"
-    elif start_hour < 20:
+    elif start_or_hit < 20:
         day_part = "Prime Access"
     else:
         day_part = "Prime 2"
     return day_part
+
+def account_for_vignettes(length, program):
+    modifier = 0
+    if 'Custom Vignette' in program:
+        modifier = 30
+    elif 'Intromercial' in program:
+        modifier = 15
+    return length + modifier
 
 
 def prepare_frame(current_frame, daypart):
@@ -50,10 +59,11 @@ def prepare_frame(current_frame, daypart):
     current_frame = current_frame[(current_frame.CR != True)]
     list_of_desired_columns = ['Air Date', 'Spot ID', 'Advertiser', 'Hit Time', 'Start Time', 'End Time',
                                'Length', ' Primary Demo', 'Unit Cost', 'Proposal Qtr. CPM', 'Primary Product Category',
-                               'Order #']
+                               'Order #', "Program Ordered As"]
 
     current_frame = current_frame[list_of_desired_columns]
     current_frame['Length'] = current_frame.apply(lambda x: convert_to_seconds(x['Length']), axis=1)
+    current_frame['Length'] = current_frame.apply(lambda x: account_for_vignettes(x['Length'], x['Program Ordered As']), axis=1)
     dollar_conversion = ['Unit Cost', 'Proposal Qtr. CPM']
     for dollars in dollar_conversion:
         current_frame[[dollars]] = current_frame[[dollars]].replace('[\$,]', '', regex=True).astype(float)
@@ -66,7 +76,7 @@ def prepare_frame(current_frame, daypart):
     # current_frame = current_frame.drop(current_frame[pd.isnull(current_frame[' Primary Demo'])].index)
     current_frame['Derived Imps'] = current_frame.apply(lambda x: derived_imps(x['Unit Cost'], x['Proposal Qtr. CPM']),
                                                         axis=1)
-    current_frame['Daypart'] = current_frame.apply(lambda x: assign_day_part(x['Air Date'], x['Start Time']), axis=1)
+    current_frame['Daypart'] = current_frame.apply(lambda x: assign_day_part(x['Air Date'], x['Start Time'], x['Hit Time']), axis=1)
     current_frame = current_frame.drop(current_frame[current_frame['Daypart'] != daypart].index)
     if daypart == 'Daytime':
         current_frame = current_frame.drop(current_frame[current_frame['Hit Time'] == '8'].index)

@@ -36,9 +36,9 @@ def convert_to_military(current_time):
 
 def assign_daypart(weekend, current_hour):
     if weekend:
-        return assign_day_part(6, current_hour)
+        return assign_day_part(6, current_hour, current_hour)
     else:
-        return assign_day_part(5, current_hour)
+        return assign_day_part(5, current_hour, current_hour)
 
 
 def import_ratings(daypart, path):
