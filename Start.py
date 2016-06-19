@@ -151,6 +151,8 @@ def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot
 
     current_index = list_of_demos.index(current_spot) + 1
 
+
+
     for times_through in range(1, 3):
         for potentials in range(0, len(id_list)):
             current_show = demo_data_frame.iloc[potentials][0]
@@ -252,7 +254,7 @@ def start(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, t
 
 
 def finish(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, trial, after_placed_imps_shortfall,
-           aggressive_factor, ratings_path, daypart):
+           aggressive_factor, ratings_path, daypart, day):
     unplaced_spots = place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list,
                                  trial, True, after_placed_imps_shortfall, aggressive_factor)
 
@@ -264,5 +266,5 @@ def finish(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, 
     final_spots = pd.DataFrame(spots_lists)
     final_spots = final_spots.transpose()
     final_spots['Unplaced'] = pd.Series(unplaced_spots[1])
-    final_spots.to_csv(daypart + '.csv')
+    final_spots.to_csv(daypart + ' ' + day + '.csv')
     return unplaced_spots[0], len(unplaced_spots[1])

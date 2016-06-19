@@ -49,6 +49,8 @@ def account_for_vignettes(length, program):
     modifier = 0
     if 'Custom Vignette' in program:
         modifier = 30
+    elif 'Custom 60 sec Vignette' in program:
+        modifier = 60
     elif 'Intromercial' in program:
         modifier = 15
     return length + modifier

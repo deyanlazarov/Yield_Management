@@ -168,7 +168,7 @@ class ChangePotential():
 
         returned = finish(spots_lists, self.list_of_boxes, id_list, spots_frame, demo_frame, demo_list,
                           winning, after_placed_imps_shortfall, self.aggressive,
-                          self.ratings_path, self.daypart)
+                          self.ratings_path, self.daypart, "Saturday")
 
         for widget in root.winfo_children():
             widget.destroy()
@@ -270,7 +270,7 @@ class Ym():
 
         returned = finish(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list,
                           winning, after_placed_imps_shortfall, 50,
-                          self.config['DEFAULT']['RATINGS_PATH'], self.daypart_variable.get())
+                          self.config['DEFAULT']['RATINGS_PATH'], self.daypart_variable.get(), "Saturday")
 
         Finished(root, returned, self.daypart_variable.get())
 

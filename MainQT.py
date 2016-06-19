@@ -3,14 +3,39 @@
 # Form implementation generated from reading ui file 'C:\Users\143740\Desktop\OptiEdit Files\MainWindow.ui'
 #
 # Created: Tue May 24 09:00:35 2016
-#      by: pyside-uic 0.2.15 running on PySide 1.2.4
+# by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
 
 from PySide import QtCore, QtGui
+from StartCalculation import start_calculation
+import configparser
+import os.path
 
+config = configparser.ConfigParser()
+if os.path.isfile('user.ini'):
+    config.read('user.ini')
+    times = [int(config['DEFAULT']['DEFAULT_POTENTIAL'])] * 17
+
+
+# noinspection PyCallByClass
 class Ui_main_window(object):
     def setupUi(self, main_window):
+        if os.path.isfile('user.ini'):
+            config.read('user.ini')
+        else:
+            config['DEFAULT'] = {'NETWORK': 'Travel Channel',
+                                 'DEFAULT_POTENTIAL': 780,
+                                 'RATINGS_PATH': r'F:\\Traffic Logs\\Travel\\OptiEdit\\Travel Ratings\\',
+                                 'SPOTS_PATH': r'F:\\Traffic Logs\\Travel\\OptiEdit\\Travel Spots\\'}
+            with open('user.ini', 'w') as configfile:
+                config.write(configfile)
+
+        global times
+        times = [int(config['DEFAULT']['DEFAULT_POTENTIAL'])] * 18
+
+        network_list = ['Food Network', 'HGTV', 'Travel Channel']
+        starting_index = network_list.index(config['DEFAULT']['NETWORK'])
         main_window.setObjectName("main_window")
         main_window.resize(400, 400)
         palette = QtGui.QPalette()
@@ -74,6 +99,7 @@ class Ui_main_window(object):
         self.needlessButton.setObjectName("needlessButton")
         self.customizeButton = QtGui.QPushButton(self.frame)
         self.customizeButton.setGeometry(QtCore.QRect(140, 20, 121, 41))
+        self.customizeButton.clicked.connect(self.customize)
         font = QtGui.QFont()
         font.setPointSize(11)
         self.customizeButton.setFont(font)
@@ -95,6 +121,7 @@ class Ui_main_window(object):
         self.networkSelectCombo.addItem("")
         self.networkSelectCombo.addItem("")
         self.networkSelectCombo.addItem("")
+        self.networkSelectCombo.setCurrentIndex(starting_index)
         self.daySelectCombo = QtGui.QComboBox(self.centralwidget)
         self.daySelectCombo.setGeometry(QtCore.QRect(100, 170, 211, 51))
         palette = QtGui.QPalette()
@@ -255,6 +282,7 @@ class Ui_main_window(object):
         main_window.setMenuBar(self.menubar)
         self.actionSettings = QtGui.QAction(main_window)
         self.actionSettings.setObjectName("actionSettings")
+        self.actionSettings.triggered.connect(self.show_settings)
         self.actionExit = QtGui.QAction(main_window)
         self.actionExit.setObjectName("actionExit")
         self.menuFile.addAction(self.actionSettings)
@@ -262,34 +290,183 @@ class Ui_main_window(object):
         self.menuFile.addAction(self.actionExit)
         self.menubar.addAction(self.menuFile.menuAction())
 
+        self.pbar = QtGui.QProgressBar(main_window)
+        self.pbar.setGeometry(135, 145, 200, 25)
+        self.pbar.setHidden(True)
+
+        self.label = QtGui.QLabel("<font color=black size=20>Hello World</font>", main_window)
+        self.label.setGeometry(55, 145, 300, 35)
+        self.label.setHidden(True)
+
         self.retranslateUi(main_window)
         QtCore.QMetaObject.connectSlotsByName(main_window)
 
+    # noinspection PyTypeChecker
     def retranslateUi(self, main_window):
-        main_window.setWindowTitle(QtGui.QApplication.translate("main_window", "OptiEdit", None, QtGui.QApplication.UnicodeUTF8))
-        self.customizeButton.setText(QtGui.QApplication.translate("main_window", "Customize", None, QtGui.QApplication.UnicodeUTF8))
-        self.optimizeButton.setText(QtGui.QApplication.translate("main_window", "Optimize", None, QtGui.QApplication.UnicodeUTF8))
-        self.networkSelectCombo.setItemText(0, QtGui.QApplication.translate("main_window", "Food Network", None, QtGui.QApplication.UnicodeUTF8))
-        self.networkSelectCombo.setItemText(1, QtGui.QApplication.translate("main_window", "HGTV", None, QtGui.QApplication.UnicodeUTF8))
-        self.networkSelectCombo.setItemText(2, QtGui.QApplication.translate("main_window", "Travel Channel", None, QtGui.QApplication.UnicodeUTF8))
-        self.daySelectCombo.setItemText(0, QtGui.QApplication.translate("main_window", "Monday", None, QtGui.QApplication.UnicodeUTF8))
-        self.daySelectCombo.setItemText(1, QtGui.QApplication.translate("main_window", "Tuesday", None, QtGui.QApplication.UnicodeUTF8))
-        self.daySelectCombo.setItemText(2, QtGui.QApplication.translate("main_window", "Wednesday", None, QtGui.QApplication.UnicodeUTF8))
-        self.daySelectCombo.setItemText(3, QtGui.QApplication.translate("main_window", "Thursday", None, QtGui.QApplication.UnicodeUTF8))
-        self.daySelectCombo.setItemText(4, QtGui.QApplication.translate("main_window", "Friday", None, QtGui.QApplication.UnicodeUTF8))
-        self.daySelectCombo.setItemText(5, QtGui.QApplication.translate("main_window", "Saturday", None, QtGui.QApplication.UnicodeUTF8))
-        self.daySelectCombo.setItemText(6, QtGui.QApplication.translate("main_window", "Sunday", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuFile.setTitle(QtGui.QApplication.translate("main_window", "File", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionSettings.setText(QtGui.QApplication.translate("main_window", "Settings", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionExit.setText(QtGui.QApplication.translate("main_window", "Exit", None, QtGui.QApplication.UnicodeUTF8))
+        main_window.setWindowTitle(
+            QtGui.QApplication.translate("main_window", "OptiEdit", None, QtGui.QApplication.UnicodeUTF8))
+        self.customizeButton.setText(
+            QtGui.QApplication.translate("main_window", "Customize", None, QtGui.QApplication.UnicodeUTF8))
+        self.optimizeButton.setText(
+            QtGui.QApplication.translate("main_window", "Optimize", None, QtGui.QApplication.UnicodeUTF8))
+        self.networkSelectCombo.setItemText(0, QtGui.QApplication.translate("main_window", "Food Network", None,
+                                                                            QtGui.QApplication.UnicodeUTF8))
+        self.networkSelectCombo.setItemText(1, QtGui.QApplication.translate("main_window", "HGTV", None,
+                                                                            QtGui.QApplication.UnicodeUTF8))
+        self.networkSelectCombo.setItemText(2, QtGui.QApplication.translate("main_window", "Travel Channel", None,
+                                                                            QtGui.QApplication.UnicodeUTF8))
+        self.daySelectCombo.setItemText(0, QtGui.QApplication.translate("main_window", "Monday", None,
+                                                                        QtGui.QApplication.UnicodeUTF8))
+        self.daySelectCombo.setItemText(1, QtGui.QApplication.translate("main_window", "Tuesday", None,
+                                                                        QtGui.QApplication.UnicodeUTF8))
+        self.daySelectCombo.setItemText(2, QtGui.QApplication.translate("main_window", "Wednesday", None,
+                                                                        QtGui.QApplication.UnicodeUTF8))
+        self.daySelectCombo.setItemText(3, QtGui.QApplication.translate("main_window", "Thursday", None,
+                                                                        QtGui.QApplication.UnicodeUTF8))
+        self.daySelectCombo.setItemText(4, QtGui.QApplication.translate("main_window", "Friday", None,
+                                                                        QtGui.QApplication.UnicodeUTF8))
+        self.daySelectCombo.setItemText(5, QtGui.QApplication.translate("main_window", "Saturday", None,
+                                                                        QtGui.QApplication.UnicodeUTF8))
+        self.daySelectCombo.setItemText(6, QtGui.QApplication.translate("main_window", "Sunday", None,
+                                                                        QtGui.QApplication.UnicodeUTF8))
+        self.menuFile.setTitle(
+            QtGui.QApplication.translate("main_window", "File", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSettings.setText(
+            QtGui.QApplication.translate("main_window", "Settings", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionExit.setText(
+            QtGui.QApplication.translate("main_window", "Exit", None, QtGui.QApplication.UnicodeUTF8))
 
 
     def optimize(self):
-        print(self.daySelectCombo.currentText())
+
+        if os.path.isfile('user.ini'):
+            config.read('user.ini')
+
+        completed = 0
+        self.pbar.setHidden(False)
+        self.pbar.setValue(0)
+        if self.daySelectCombo.currentIndex() < 5:
+            daypartList = ['Daytime', 'Early Fringe', 'Prime Access', 'Prime 2']
+        else:
+            daypartList = ['Weekend', 'Prime 2']
+
+        total_returned = 0
+
+        for dayparts in daypartList:
+            number_of_returned = start_calculation(dayparts, config['DEFAULT']['RATINGS_PATH'],
+                                                   config['DEFAULT']['SPOTS_PATH'],
+                                                   times,
+                                                   self.daySelectCombo.currentText())
+            total_returned += number_of_returned
+            completed += (100 // len(daypartList))
+            self.pbar.setValue(completed)
+
+        self.pbar.setHidden(True)
+        self.daySelectCombo.setHidden(True)
+        self.networkSelectCombo.setHidden(True)
+
+        font = QtGui.QFont()
+        font.setPointSize(15)
+
+        self.label.setText('All done with {} unplaced spots'.format(total_returned))
+        self.label.setFont(font)
+        self.label.setHidden(False)
+
+    def show_settings(self):
+        w2 = LoginDialog()
+        if w2.exec_():
+            pass
+
+    def customize(self):
+        w3 = CustomizeDialog()
+        if w3.exec_():
+            pass
+
+
+class CustomizeDialog(QtGui.QDialog):
+    def __init__(self, parent=None):
+        super(CustomizeDialog, self).__init__(parent)
+
+        self.setWindowTitle('OptiEdit')
+        loginLayout = QtGui.QFormLayout()
+
+        self.boxes = []
+
+        for x in range(0, 17):
+            self.boxes.append(QtGui.QLineEdit())
+            self.boxes[x].setText(config['DEFAULT']['DEFAULT_POTENTIAL'])
+
+        for i in range(7, 24):
+            loginLayout.addRow(str(i), self.boxes[i - 7])
+
+        self.buttons = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel)
+        self.buttons.accepted.connect(self.check)
+        self.buttons.rejected.connect(self.reject)
+
+        layout = QtGui.QVBoxLayout()
+        layout.addLayout(loginLayout)
+        layout.addWidget(self.buttons)
+        self.setLayout(layout)
+
+    def check(self):
+
+        global times
+        times = [int(self.boxes[x].text()) for x in range(len(self.boxes))]
+        self.accept()
+
+
+class LoginDialog(QtGui.QDialog):
+    def __init__(self, parent=None):
+        super(LoginDialog, self).__init__(parent)
+
+        self.setWindowTitle("OptiEdit")
+        self.cb = QtGui.QComboBox()
+        self.cb.addItem('Food Network', 1)
+        self.cb.addItem('HGTV', 2)
+        self.cb.addItem('Travel Channel', 3)
+
+        self.password = QtGui.QLineEdit()
+        loginLayout = QtGui.QFormLayout()
+        loginLayout.addRow("Network", self.cb)
+        loginLayout.addRow("Default Potential", self.password)
+
+        self.buttons = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel)
+        self.buttons.accepted.connect(self.check)
+        self.buttons.rejected.connect(self.reject)
+
+        layout = QtGui.QVBoxLayout()
+        layout.addLayout(loginLayout)
+        layout.addWidget(self.buttons)
+        self.setLayout(layout)
+
+    def check(self):
+
+        global times
+        times = [self.password.text()] * 18
+
+        if self.cb.currentText() == 'Food Network':
+            default_ratings_path = 'F:\\Traffic Logs\\Food\\OptiEdit\\Food Ratings\\'
+            default_spots_path = 'F:\\Traffic Logs\\Food\\OptiEdit\\Food Spots\\'
+        elif self.cb.currentText() == 'HGTV':
+            default_ratings_path = 'F:\\Traffic Logs\\HGTV\\OptiEdit\\HGTV Ratings\\'
+            default_spots_path = 'F:\\Traffic Logs\\HGTV\\OptiEdit\\HGTV Spots\\'
+        else:
+            default_ratings_path = 'F:\\Traffic Logs\\Travel\\OptiEdit\\Travel Ratings\\'
+            default_spots_path = 'F:\\Traffic Logs\\Travel\\OptiEdit\\Travel Spots\\'
+
+        self.config = configparser.ConfigParser()
+        self.config['DEFAULT'] = {'NETWORK': self.cb.currentText(),
+                                  'DEFAULT_POTENTIAL': int(self.password.text()),
+                                  'RATINGS_PATH': default_ratings_path,
+                                  'SPOTS_PATH': default_spots_path}
+        with open('user.ini', 'w') as configfile:
+            self.config.write(configfile)
+        self.accept()
 
 
 if __name__ == "__main__":
     import sys
+
     app = QtGui.QApplication(sys.argv)
     main_window = QtGui.QMainWindow()
     ui = Ui_main_window()
