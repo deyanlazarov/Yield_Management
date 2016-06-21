@@ -9,13 +9,13 @@ from Start import place_placed_spots
 from Start import finish
 
 
-def start_calculation(daypart, ratings_path, spots_path, default_potential, day):
-    frame = import_ratings(daypart, ratings_path)
+def start_calculation(daypart, ratings_path, spots_path, default_potential, day, network):
+    frame = import_ratings(daypart, ratings_path, network, day)
     id_list = frame['ID'].tolist()
     spots_lists = [[] for i in repeat(None, len(id_list))]
     for x in range(0, len(id_list)):
         spots_lists[x].append(str(id_list[x]) + '  ')
-    spots_frame = preempt_credit_names(daypart, spots_path)
+    spots_frame = preempt_credit_names(daypart, spots_path, network)
     first = spots_frame[' Primary Demo'].unique()
     demo_frame = pd.DataFrame()
     demo_frame['ID'] = frame['ID']
@@ -27,8 +27,10 @@ def start_calculation(daypart, ratings_path, spots_path, default_potential, day)
     running_imps = []
 
 
+
+
     time_dict = dict(zip(get_hours_from_daypart(daypart),
-                         get_potential_from_daypart(daypart, default_potential)))
+                         get_potential_from_daypart(daypart, default_potential, network)))
 
 
 
@@ -47,8 +49,14 @@ def get_hours_from_daypart(daypart):
     options = [i for i in range(7, 24)]
     if daypart == "Prime Access":
         hour_options = options[11:13]
+    elif daypart == "Morning":
+        hour_options = options[:2]
     elif daypart == "Weekend":
         hour_options = options[:13]
+    elif daypart == "Weekend Morning":
+        hour_options = options[:7]
+    elif daypart == "Weekend Day":
+        hour_options = options[6:11]
     elif daypart == "Daytime":
         hour_options = options[2:8]
     elif daypart == "Early Fringe":
@@ -60,13 +68,21 @@ def get_hours_from_daypart(daypart):
     return hour_options
 
 
-def get_potential_from_daypart(daypart, default_potential):
+def get_potential_from_daypart(daypart, default_potential, network):
     if daypart == "Prime Access":
         hour_options = default_potential[11:13]
+    elif daypart == "Morning":
+        hour_options = default_potential[:3]
     elif daypart == "Weekend":
         hour_options = default_potential[:13]
+    elif daypart == "Weekend Morning":
+        hour_options = default_potential[:7]
+    elif daypart == "Weekend Day":
+        hour_options = default_potential[6:11]
     elif daypart == "Daytime":
         hour_options = default_potential[2:8]
+        if network == 0:
+            hour_options[0] = hour_options[0]//2
     elif daypart == "Early Fringe":
         hour_options = default_potential[8:11]
     elif daypart == "Prime 1":

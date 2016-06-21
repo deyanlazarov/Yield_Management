@@ -5,7 +5,7 @@ import time
 from Preempt_Credit import assign_day_part
 
 
-def clean_ratings(ratings_frame, daypart):
+def clean_ratings(ratings_frame, daypart, network, day):
     ratings_frame.drop_duplicates('Nielsen Program', inplace=True)
     ratings_frame.reset_index(inplace=True, drop=True)
     ratings_frame['ID'] = ratings_frame.apply(lambda x: convert_to_military(x['Start Time']), axis=1)
@@ -23,10 +23,16 @@ def clean_ratings(ratings_frame, daypart):
     for i in range(military_list.index(20), military_list.index(23)+1):
         for names in ratings_names_list:
             ratings_frame.set_value(i, names, ratings_frame[names][i] + ratings_frame[names][mirror_indexes[i - military_list.index(20)]])
-    ratings_frame.drop([0, 1, 2, 3], inplace=True)
+    if network == 0:
+        ratings_frame.drop([0, 1, 2, 3, 4], inplace=True)
+    else:
+        ratings_frame.drop([0, 1, 2, 3], inplace=True)
     ratings_frame.reset_index(inplace=True, drop=True)
-    weekend = True if ratings_frame['ID'][0] == 7 else False
-    ratings_frame['Daypart'] = ratings_frame.apply(lambda row: assign_daypart(weekend, row['ID']), axis=1)
+    if day == 'Saturday' or day == 'Sunday':
+        weekend = True
+    else:
+        weekend = False
+    ratings_frame['Daypart'] = ratings_frame.apply(lambda row: assign_daypart(weekend, row['ID'], network), axis=1)
     ratings_frame = ratings_frame.drop(ratings_frame[ratings_frame['Daypart'] != daypart].index)
     return ratings_frame
 
@@ -34,19 +40,19 @@ def convert_to_military(current_time):
     return time.strptime(current_time, "%H:%M:%S")[3]
 
 
-def assign_daypart(weekend, current_hour):
+def assign_daypart(weekend, current_hour, network):
     if weekend:
-        return assign_day_part(6, current_hour, current_hour)
+        return assign_day_part(6, current_hour, current_hour, network)
     else:
-        return assign_day_part(5, current_hour, current_hour)
+        return assign_day_part(5, current_hour, current_hour, network)
 
 
-def import_ratings(daypart, path):
+def import_ratings(daypart, path, network, day):
     allFiles = glob.glob(path + "/*.csv")
     list_ = []
     for file_ in allFiles:
         df = pd.read_csv(file_, index_col=None, header=0)
         list_.append(df)
-    return clean_ratings(pd.concat(list_), daypart)
+    return clean_ratings(pd.concat(list_), daypart, network, day)
 
 

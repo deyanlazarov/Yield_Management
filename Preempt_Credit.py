@@ -28,21 +28,39 @@ def derived_imps(current_cost, current_CPM):
     return 0 if current_CPM == 0 else current_cost / current_CPM
 
 
-def assign_day_part(day_number, start_hour, hit_time):
+def assign_day_part(day_number, start_hour, hit_time, network):
     start_or_hit = int(start_hour) if hit_time == "Not Yet Placed" else int(hit_time)
     day_part = ""
-    if day_number >= 6 and int(start_or_hit) < 20:
-        day_part = "Weekend"
-    elif start_or_hit == 20:
-        day_part = "Prime 1"
-    elif start_or_hit < 15:
-        day_part = "Daytime"
-    elif start_or_hit < 18:
-        day_part = "Early Fringe"
-    elif start_or_hit < 20:
-        day_part = "Prime Access"
+    if network % 2 == 0:
+        if day_number >= 6 and int(start_or_hit) < 20:
+            day_part = "Weekend"
+        elif start_or_hit == 20:
+            day_part = "Prime 1"
+        elif start_or_hit < 15:
+            day_part = "Daytime"
+        elif start_or_hit < 18:
+            day_part = "Early Fringe"
+        elif start_or_hit < 20:
+            day_part = "Prime Access"
+        else:
+            day_part = "Prime 2"
     else:
-        day_part = "Prime 2"
+        if day_number >= 6 and int(start_or_hit) < 13:
+            day_part = "Weekend Morning"
+        elif day_number >= 6 and int(start_or_hit) < 18:
+            day_part = "Weekend Day"
+        elif start_or_hit == 20:
+            day_part = "Prime 1"
+        elif start_or_hit < 15 and start_or_hit >= 9:
+            day_part = "Daytime"
+        elif start_or_hit < 18 and start_or_hit >=15:
+            day_part = "Early Fringe"
+        elif start_or_hit < 20 and start_or_hit >= 18:
+            day_part = "Prime Access"
+        elif start_or_hit < 9:
+            day_part = "Morning"
+        else:
+            day_part = "Prime 2"
     return day_part
 
 def account_for_vignettes(length, program):
@@ -56,7 +74,7 @@ def account_for_vignettes(length, program):
     return length + modifier
 
 
-def prepare_frame(current_frame, daypart):
+def prepare_frame(current_frame, daypart, network):
     current_frame = current_frame[(current_frame.MG.isnull() == True) | (current_frame.MG == 'M')]
     current_frame = current_frame[(current_frame.CR != True)]
     list_of_desired_columns = ['Air Date', 'Spot ID', 'Advertiser', 'Hit Time', 'Start Time', 'End Time',
@@ -78,8 +96,9 @@ def prepare_frame(current_frame, daypart):
     # current_frame = current_frame.drop(current_frame[pd.isnull(current_frame[' Primary Demo'])].index)
     current_frame['Derived Imps'] = current_frame.apply(lambda x: derived_imps(x['Unit Cost'], x['Proposal Qtr. CPM']),
                                                         axis=1)
-    current_frame['Daypart'] = current_frame.apply(lambda x: assign_day_part(x['Air Date'], x['Start Time'], x['Hit Time']), axis=1)
+    current_frame['Daypart'] = current_frame.apply(lambda x: assign_day_part(x['Air Date'], x['Start Time'], x['Hit Time'], network), axis=1)
     current_frame = current_frame.drop(current_frame[current_frame['Daypart'] != daypart].index)
+    current_frame = current_frame.drop(current_frame[current_frame['Hit Time'] == '6'].index)
     if daypart == 'Daytime':
         current_frame = current_frame.drop(current_frame[current_frame['Hit Time'] == '8'].index)
     current_frame.drop('Unit Cost', axis=1, inplace=True)
@@ -91,7 +110,7 @@ def prepare_frame(current_frame, daypart):
     current_frame = current_frame[list_of_desired_columns]
     current_frame['Derived Imps'].fillna(0, inplace=True)
     current_frame[' Primary Demo'].fillna('P25-54', inplace=True)
-    current_frame = pd.merge(current_frame, LiabilityClean.combine_liability_and_orders(), left_on='Order #',
+    current_frame = pd.merge(current_frame, LiabilityClean.combine_liability_and_orders(network), left_on='Order #',
                              right_on='Order', how='left')
     current_frame.loc[pd.isnull(current_frame.Order), 'Imps'] = 888888
     current_frame.drop('Order', axis=1, inplace=True)
@@ -104,20 +123,23 @@ def prepare_frame(current_frame, daypart):
         list_.append(df)
     products_file = pd.concat(list_)
 
+
+
     current_frame = pd.merge(current_frame, products_file, left_on='Primary Product Category',
                              right_on='Pri. Prod. Category', how='left')
+    current_frame['Grouped Category'].fillna('Various', inplace=True)
 
     return current_frame
 
 
-def preempt_credit_names(daypart, path):
+def preempt_credit_names(daypart, path, network):
     allFiles = glob.glob(path + "/*.csv")
     list_ = []
     for file_ in allFiles:
         df = pd.read_csv(file_, index_col=None, header=0)
         list_.append(df)
     pd.options.mode.chained_assignment = None
-    return prepare_frame(pd.concat(list_), daypart)
+    return prepare_frame(pd.concat(list_), daypart, network)
 
 
 

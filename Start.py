@@ -210,6 +210,8 @@ def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot
             if numbers_of_pairs > 9:
                 too_many_pairs = True
 
+
+
             if time_dict[
                 current_show] - length_of_spot >= 0 and not too_many and not too_many_product and within_time and spread_enough and not too_many_category:
                 time_dict[current_show] = time_dict[current_show] - length_of_spot

@@ -342,13 +342,19 @@ class Ui_main_window(object):
         if os.path.isfile('user.ini'):
             config.read('user.ini')
 
+        network = self.networkSelectCombo.currentIndex()
+
         completed = 0
         self.pbar.setHidden(False)
         self.pbar.setValue(0)
-        if self.daySelectCombo.currentIndex() < 5:
+        if self.daySelectCombo.currentIndex() < 5 and network % 2 == 0:
             daypartList = ['Daytime', 'Early Fringe', 'Prime Access', 'Prime 2']
-        else:
+        elif self.daySelectCombo.currentIndex() < 5:
+            daypartList = ['Morning', 'Daytime', 'Early Fringe', 'Prime Access', 'Prime 2']
+        elif self.daySelectCombo.currentIndex() >= 5 and network % 2 == 0:
             daypartList = ['Weekend', 'Prime 2']
+        else:
+            daypartList = ['Weekend Morning', 'Weekend Day', 'Prime Access', 'Prime 2']
 
         total_returned = 0
 
@@ -356,7 +362,7 @@ class Ui_main_window(object):
             number_of_returned = start_calculation(dayparts, config['DEFAULT']['RATINGS_PATH'],
                                                    config['DEFAULT']['SPOTS_PATH'],
                                                    times,
-                                                   self.daySelectCombo.currentText())
+                                                   self.daySelectCombo.currentText(), network)
             total_returned += number_of_returned
             completed += (100 // len(daypartList))
             self.pbar.setValue(completed)
@@ -445,8 +451,8 @@ class LoginDialog(QtGui.QDialog):
         times = [self.password.text()] * 18
 
         if self.cb.currentText() == 'Food Network':
-            default_ratings_path = 'F:\\Traffic Logs\\Food\\OptiEdit\\Food Ratings\\'
-            default_spots_path = 'F:\\Traffic Logs\\Food\\OptiEdit\\Food Spots\\'
+            default_ratings_path = 'F:\\Traffic Logs\\FOOD LOGS\\OptiEdit\\Food Ratings\\'
+            default_spots_path = 'F:\\Traffic Logs\\FOOD LOGS\\OptiEdit\\Food Spots\\'
         elif self.cb.currentText() == 'HGTV':
             default_ratings_path = 'F:\\Traffic Logs\\HGTV\\OptiEdit\\HGTV Ratings\\'
             default_spots_path = 'F:\\Traffic Logs\\HGTV\\OptiEdit\\HGTV Spots\\'
