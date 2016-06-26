@@ -304,7 +304,7 @@ class Ui_main_window(object):
     # noinspection PyTypeChecker
     def retranslateUi(self, main_window):
         main_window.setWindowTitle(
-            QtGui.QApplication.translate("main_window", "OptiEdit 2.0.1", None, QtGui.QApplication.UnicodeUTF8))
+            QtGui.QApplication.translate("main_window", "OptiEdit 2.1.0", None, QtGui.QApplication.UnicodeUTF8))
         self.customizeButton.setText(
             QtGui.QApplication.translate("main_window", "Customize", None, QtGui.QApplication.UnicodeUTF8))
         self.optimizeButton.setText(
