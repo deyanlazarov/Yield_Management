@@ -17,6 +17,10 @@ if os.path.isfile('user.ini'):
     config.read('user.ini')
     times = [int(config['DEFAULT']['DEFAULT_POTENTIAL'])] * 17
 
+if os.path.isfile('user.ini'):
+    config.read('user.ini')
+    breaks = [int(config['DEFAULT']['DEFAULT_BREAKS'])] * 17
+
 
 # noinspection PyCallByClass
 class Ui_main_window(object):
@@ -27,7 +31,8 @@ class Ui_main_window(object):
             config['DEFAULT'] = {'NETWORK': 'Travel Channel',
                                  'DEFAULT_POTENTIAL': 780,
                                  'RATINGS_PATH': r'F:\\Traffic Logs\\Travel\\OptiEdit\\Travel Ratings\\',
-                                 'SPOTS_PATH': r'F:\\Traffic Logs\\Travel\\OptiEdit\\Travel Spots\\'}
+                                 'SPOTS_PATH': r'F:\\Traffic Logs\\Travel\\OptiEdit\\Travel Spots\\',
+                                 'DEFAULT_BREAKS': 5}
             with open('user.ini', 'w') as configfile:
                 config.write(configfile)
 
@@ -304,7 +309,7 @@ class Ui_main_window(object):
     # noinspection PyTypeChecker
     def retranslateUi(self, main_window):
         main_window.setWindowTitle(
-            QtGui.QApplication.translate("main_window", "OptiEdit 2.1.0", None, QtGui.QApplication.UnicodeUTF8))
+            QtGui.QApplication.translate("main_window", "OptiEdit 2.1.1", None, QtGui.QApplication.UnicodeUTF8))
         self.customizeButton.setText(
             QtGui.QApplication.translate("main_window", "Customize", None, QtGui.QApplication.UnicodeUTF8))
         self.optimizeButton.setText(
@@ -362,7 +367,7 @@ class Ui_main_window(object):
             number_of_returned = start_calculation(dayparts, config['DEFAULT']['RATINGS_PATH'],
                                                    config['DEFAULT']['SPOTS_PATH'],
                                                    times,
-                                                   self.daySelectCombo.currentText(), network)
+                                                   self.daySelectCombo.currentText(), network, breaks)
             total_returned += number_of_returned
             completed += (100 // len(daypartList))
             self.pbar.setValue(completed)
@@ -394,30 +399,41 @@ class CustomizeDialog(QtGui.QDialog):
         super(CustomizeDialog, self).__init__(parent)
 
         self.setWindowTitle('OptiEdit')
-        loginLayout = QtGui.QFormLayout()
+        loginLayout = QtGui.QGridLayout()
+
 
         self.boxes = []
+        self.breaks = []
+        self.labels = []
 
         for x in range(0, 17):
             self.boxes.append(QtGui.QLineEdit())
             self.boxes[x].setText(config['DEFAULT']['DEFAULT_POTENTIAL'])
+            self.boxes[x].setFixedWidth(50)
+            self.breaks.append(QtGui.QLineEdit())
+            self.breaks[x].setText(config['DEFAULT']['DEFAULT_BREAKS'])
+            self.breaks[x].setFixedWidth(50)
+            self.labels.append(QtGui.QLabel(str(x + 7)))
+            self.labels[x].setFixedWidth(15)
 
         for i in range(7, 24):
-            loginLayout.addRow(str(i), self.boxes[i - 7])
+            loginLayout.addWidget(self.labels[i - 7], i-7, 0)
+            loginLayout.addWidget(self.boxes[i - 7], i-7, 1)
+            loginLayout.addWidget(self.breaks[i - 7], i-7, 2)
 
-        self.buttons = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel)
-        self.buttons.accepted.connect(self.check)
-        self.buttons.rejected.connect(self.reject)
+        button = QtGui.QPushButton("OK")
+        loginLayout.addWidget(button, 18, 2)
 
-        layout = QtGui.QVBoxLayout()
-        layout.addLayout(loginLayout)
-        layout.addWidget(self.buttons)
-        self.setLayout(layout)
+        button.clicked.connect(self.check)
+
+        self.setLayout(loginLayout)
+        self.show()
 
     def check(self):
-
         global times
+        global breaks
         times = [int(self.boxes[x].text()) for x in range(len(self.boxes))]
+        breaks = [int(self.breaks[x].text()) for x in range(len(self.breaks))]
         self.accept()
 
 
@@ -453,18 +469,22 @@ class LoginDialog(QtGui.QDialog):
         if self.cb.currentText() == 'Food Network':
             default_ratings_path = 'F:\\Traffic Logs\\FOOD LOGS\\OptiEdit\\Food Ratings\\'
             default_spots_path = 'F:\\Traffic Logs\\FOOD LOGS\\OptiEdit\\Food Spots\\'
+            default_breaks = 5
         elif self.cb.currentText() == 'HGTV':
             default_ratings_path = 'F:\\Traffic Logs\\HGTV\\OptiEdit\\HGTV Ratings\\'
             default_spots_path = 'F:\\Traffic Logs\\HGTV\\OptiEdit\\HGTV Spots\\'
+            default_breaks = 6
         else:
             default_ratings_path = 'F:\\Traffic Logs\\Travel\\OptiEdit\\Travel Ratings\\'
             default_spots_path = 'F:\\Traffic Logs\\Travel\\OptiEdit\\Travel Spots\\'
+            default_breaks = 5
 
         self.config = configparser.ConfigParser()
         self.config['DEFAULT'] = {'NETWORK': self.cb.currentText(),
                                   'DEFAULT_POTENTIAL': int(self.password.text()),
                                   'RATINGS_PATH': default_ratings_path,
-                                  'SPOTS_PATH': default_spots_path}
+                                  'SPOTS_PATH': default_spots_path,
+                                  'DEFAULT_BREAKS': default_breaks}
         with open('user.ini', 'w') as configfile:
             self.config.write(configfile)
         self.accept()

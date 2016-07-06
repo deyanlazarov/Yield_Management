@@ -65,21 +65,31 @@ def assign_day_part(day_number, start_hour, hit_time, network):
 
 def account_for_vignettes(length, program):
     modifier = 0
-    if 'Custom Vignette' in program:
+    if 'Custom Vignettes (pp)' in program:
+        modifier = 0
+    elif 'Custom Vignette' in program:
         modifier = 30
     elif 'Custom 60 sec Vignette' in program:
         modifier = 60
     elif 'Intromercial' in program:
         modifier = 15
+    elif 'Custom Vignettes (:15 Adj)' in program:
+        modifier = 30
+    elif 'Custom Vignettes (:30 Adj)' in program:
+        modifier = 30
+    elif 'Custom :60 sec Vigs' in program:
+        modifier = 60
     return length + modifier
 
 
 def prepare_frame(current_frame, daypart, network):
     current_frame = current_frame[(current_frame.MG.isnull() == True) | (current_frame.MG == 'M')]
     current_frame = current_frame[(current_frame.CR != True)]
+    current_frame = current_frame[(current_frame.Category == 'Vignette') | (current_frame.Category == "Commercial")]
+    current_frame = current_frame[(current_frame.Category == 'Commercial') | (current_frame['Program Ordered As'].str.startswith("Custom Vignettes (pp)"))]
     list_of_desired_columns = ['Air Date', 'Spot ID', 'Advertiser', 'Hit Time', 'Start Time', 'End Time',
                                'Length', ' Primary Demo', 'Unit Cost', 'Proposal Qtr. CPM', 'Primary Product Category',
-                               'Order #', "Program Ordered As"]
+                               'Order #', 'Program Ordered As']
 
     current_frame = current_frame[list_of_desired_columns]
     current_frame['Length'] = current_frame.apply(lambda x: convert_to_seconds(x['Length']), axis=1)

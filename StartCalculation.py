@@ -9,7 +9,7 @@ from Start import place_placed_spots
 from Start import finish
 
 
-def start_calculation(daypart, ratings_path, spots_path, default_potential, day, network):
+def start_calculation(daypart, ratings_path, spots_path, default_potential, day, network, default_breaks):
     frame = import_ratings(daypart, ratings_path, network, day)
     id_list = frame['ID'].tolist()
     spots_lists = [[] for i in repeat(None, len(id_list))]
@@ -32,15 +32,18 @@ def start_calculation(daypart, ratings_path, spots_path, default_potential, day,
     time_dict = dict(zip(get_hours_from_daypart(daypart),
                          get_potential_from_daypart(daypart, default_potential, network)))
 
+    breaks_dict = dict(zip(get_hours_from_daypart(daypart), get_breaks_from_daypart(daypart, default_breaks, network)))
 
 
     after_placed_imps_shortfall = place_placed_spots(spots_frame, id_list, demo_frame, first, time_dict,
                                                      spots_lists)
 
 
+
+
     returned = finish(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list,
-                      0, after_placed_imps_shortfall, 50,
-                      ratings_path, daypart, day)
+                      0, after_placed_imps_shortfall, 150,
+                      ratings_path, daypart, day, breaks_dict)
 
     return returned[1]
 
@@ -82,11 +85,34 @@ def get_potential_from_daypart(daypart, default_potential, network):
     elif daypart == "Daytime":
         hour_options = default_potential[2:8]
         if network == 0:
-            hour_options[0] = hour_options[0]//2
+            hour_options[0] = (hour_options[0]//2) - 30
     elif daypart == "Early Fringe":
         hour_options = default_potential[8:11]
     elif daypart == "Prime 1":
         hour_options = default_potential[13:14]
     else:
         hour_options = default_potential[14:]
+    return hour_options
+
+def get_breaks_from_daypart(daypart, default_breaks, network):
+    if daypart == "Prime Access":
+        hour_options = default_breaks[11:13]
+    elif daypart == "Morning":
+        hour_options = default_breaks[:3]
+    elif daypart == "Weekend":
+        hour_options = default_breaks[:13]
+    elif daypart == "Weekend Morning":
+        hour_options = default_breaks[:7]
+    elif daypart == "Weekend Day":
+        hour_options = default_breaks[6:11]
+    elif daypart == "Daytime":
+        hour_options = default_breaks[2:8]
+        if network == 0:
+            hour_options[0] = 3
+    elif daypart == "Early Fringe":
+        hour_options = default_breaks[8:11]
+    elif daypart == "Prime 1":
+        hour_options = default_breaks[13:14]
+    else:
+        hour_options = default_breaks[14:]
     return hour_options

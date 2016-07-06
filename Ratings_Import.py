@@ -23,7 +23,7 @@ def clean_ratings(ratings_frame, daypart, network, day):
     for i in range(military_list.index(20), military_list.index(23)+1):
         for names in ratings_names_list:
             ratings_frame.set_value(i, names, ratings_frame[names][i] + ratings_frame[names][mirror_indexes[i - military_list.index(20)]])
-    if network == 0:
+    if network == 0 and daypart != 'Weekend':
         ratings_frame.drop([0, 1, 2, 3, 4], inplace=True)
     else:
         ratings_frame.drop([0, 1, 2, 3], inplace=True)

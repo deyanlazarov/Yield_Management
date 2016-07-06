@@ -15,7 +15,7 @@ def time_range(start_time, end_time):
 
 
 def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_list,
-                random_trial, keep_imps, after_placed_imps, aggressive_factor):
+                random_trial, keep_imps, after_placed_imps, aggressive_factor, breaks):
     in_tact = spots_list
     preplace_list = ['Advertiser', 'Primary Product Category']
     high_qualifier = [1.25, 3]
@@ -42,14 +42,13 @@ def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_li
             spots_list = spots_list.sort_values('Imps', ascending=False)
             # Find the best available place for each spot in the dataframe
             for x in range(0, len(spots_list['Length'])):
-
                 if spots_list.iloc[x][3] == "Not Yet Placed":
                     current_imps = find_best_fit(spots_lists, time_dict, id_list, demo_frame, spots_list.iloc[x][7],
-                                                 spots_list.iloc[x][6],
-                                                 spots_list.iloc[x][2], spots_list.iloc[x][8], spots_list.iloc[x][1],
-                                                 demo_list, False, spots_list.iloc[x][9], spots_list.iloc[x][12],
-                                                 spots_list.iloc[x][4], spots_list.iloc[x][5], spots_list.iloc[x][14],
-                                                 category_list)
+                                             spots_list.iloc[x][6],
+                                             spots_list.iloc[x][2], spots_list.iloc[x][8], spots_list.iloc[x][1],
+                                             demo_list, False, spots_list.iloc[x][9], spots_list.iloc[x][12],
+                                             spots_list.iloc[x][4], spots_list.iloc[x][5], spots_list.iloc[x][14],
+                                             category_list, breaks)
                     if isinstance(current_imps, str) and keep_imps:
                         unplaced_spots.append(current_imps)
                     elif isinstance(current_imps, str):
@@ -58,14 +57,16 @@ def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_li
                         running_imps_total += current_imps
                     if len(unplaced_spots) > aggressive_factor:
                         return -80000, len(unplaced_spots)
-                else:
-                    pass
+                    else:
+                        pass
 
             spots_list = in_tact.drop(in_tact[in_tact[j] == y].index)
             spots_list = spots_list.sort_values('Imps', ascending=False)
             in_tact = spots_list
 
     spots_list = spots_list[spots_list['Time Window'] != len(time_dict)]
+    spots_list = spots_list.sort_values(['Time Window', 'Frequency'], ascending=[True, False])
+
 
     for x in range(0, len(spots_list['Length'])):
         if spots_list.iloc[x][3] == "Not Yet Placed":
@@ -74,7 +75,7 @@ def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_li
                                          spots_list.iloc[x][2], spots_list.iloc[x][8], spots_list.iloc[x][1],
                                          demo_list, False, spots_list.iloc[x][9], spots_list.iloc[x][12],
                                          spots_list.iloc[x][4], spots_list.iloc[x][5], spots_list.iloc[x][14],
-                                         category_list)
+                                         category_list, breaks)
             if isinstance(current_imps, str) and keep_imps:
                 unplaced_spots.append(current_imps)
             elif isinstance(current_imps, str):
@@ -85,6 +86,8 @@ def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_li
                 return -80000, len(unplaced_spots)
         else:
             pass
+
+
 
     spots_list = in_tact.drop(in_tact[in_tact['Time Window'] != len(time_dict)].index)
     spots_list = spots_list.sort_values('Imps', ascending=False)
@@ -100,7 +103,7 @@ def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_li
                                          spots_list.iloc[x][2], spots_list.iloc[x][8], spots_list.iloc[x][1],
                                          demo_list, False, spots_list.iloc[x][9], spots_list.iloc[x][12],
                                          spots_list.iloc[x][4], spots_list.iloc[x][5], spots_list.iloc[x][14],
-                                         category_list)
+                                         category_list, breaks)
             if isinstance(current_imps, str) and keep_imps:
                 unplaced_spots.append(current_imps)
             elif isinstance(current_imps, str):
@@ -143,7 +146,7 @@ def plus_minus(demo_frame, id_list, current_hour, current_demo, current_imps, le
 def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot, length_of_spot, advertiser, imps,
                   spot_id, list_of_demos,
                   best_available, product, imps_deficit_or_surplus, start_time, end_time, grouped_category,
-                  category_list):
+                  category_list, breaks):
     if (imps_deficit_or_surplus <= 0) or (imps_deficit_or_surplus == 888888.0):
         demo_data_frame = demo_data_frame.sort_values(current_spot, ascending=True)
     else:
@@ -151,23 +154,22 @@ def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot
 
     current_index = list_of_demos.index(current_spot) + 1
 
-
-
     for times_through in range(1, 3):
         for potentials in range(0, len(id_list)):
             current_show = demo_data_frame.iloc[potentials][0]
             current_location = id_list.index(current_show)
             if len(spots_lists[current_location]) > 2:
-                too_many_product = sum(t[1] == product.strip() for t in spots_lists[current_location]) >= 5
+                too_many_product = sum(t[1] == product.strip() for t in spots_lists[current_location]) >= \
+                                   breaks[int(current_show)]
             else:
                 too_many_product = False
             too_many = sum(t[0] == advertiser.strip() for t in spots_lists[current_location]) >= times_through
 
-
             if category_list[grouped_category.strip()] // len(time_dict) < 5:
                 compare_number = 4
             elif grouped_category.strip() == 'FOOD':
-                compare_number = category_list[grouped_category.strip()] // len(time_dict) + 1
+                compare_number = category_list[grouped_category.strip()] // len(time_dict) + 3
+                print(compare_number)
             else:
                 compare_number = category_list[grouped_category.strip()] // len(time_dict)
 
@@ -210,8 +212,6 @@ def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot
             if numbers_of_pairs > 9:
                 too_many_pairs = True
 
-
-
             if time_dict[
                 current_show] - length_of_spot >= 0 and not too_many and not too_many_product and within_time and spread_enough and not too_many_category:
                 time_dict[current_show] = time_dict[current_show] - length_of_spot
@@ -220,7 +220,8 @@ def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot
                 # Take that location and add to it the current spots information since it should go in that show
                 if imps > 0:
                     current_imps_deficit = round(-imps +
-                                                 (demo_data_frame.iloc[potentials][current_index] * float(length_of_spot)),
+                                                 (demo_data_frame.iloc[potentials][current_index] * float(
+                                                     length_of_spot)),
                                                  2)
                 else:
                     current_imps_deficit = 0
@@ -256,9 +257,9 @@ def start(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, t
 
 
 def finish(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, trial, after_placed_imps_shortfall,
-           aggressive_factor, ratings_path, daypart, day):
+           aggressive_factor, ratings_path, daypart, day, breaks):
     unplaced_spots = place_spots(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list,
-                                 trial, True, after_placed_imps_shortfall, aggressive_factor)
+                                 trial, True, after_placed_imps_shortfall, aggressive_factor, breaks)
 
 
 
