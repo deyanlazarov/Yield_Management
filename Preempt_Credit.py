@@ -19,6 +19,9 @@ def convert_to_military(current_time):
 def convert_to_military_string(current_time):
     return str(time.strptime(current_time, "%I:%M:%S %p")[3]) if not pd.isnull(current_time) else "Not Yet Placed"
 
+def convert_to_minute(current_time):
+    return time.strptime(current_time, "%I:%M:%S %p")[3] * 60 + time.strptime(current_time, "%I:%M:%S %p")[4] if not pd.isnull(current_time) else "Not Yet Placed"
+
 
 def convert_to_numeric_day(current_day):
     return time.strptime(current_day, '%m/%d/%Y')[6] + 1
@@ -100,6 +103,7 @@ def prepare_frame(current_frame, daypart, network):
     military_column_list = ['Start Time', 'End Time']
     for military in military_column_list:
         current_frame[military] = current_frame.apply(lambda x: convert_to_military(x[military]), axis=1)
+    # current_frame['Hit Time Minute'] = current_frame.apply(lambda x: convert_to_minute(x['Hit Time']), axis=1)
     current_frame['Hit Time'] = current_frame.apply(lambda x: convert_to_military_string(x['Hit Time']), axis=1)
     current_frame['Air Date'] = current_frame.apply(lambda x: convert_to_numeric_day(x['Air Date']), axis=1)
     current_frame = current_frame.drop(current_frame[current_frame['Start Time'] < 6].index)

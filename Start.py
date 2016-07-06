@@ -88,10 +88,7 @@ def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_li
             pass
 
 
-
     spots_list = in_tact.drop(in_tact[in_tact['Time Window'] != len(time_dict)].index)
-    spots_list = spots_list.sort_values('Imps', ascending=False)
-
 
     spots_list['Imps'] = spots_list.apply(lambda x: assign_random(x['Imps']), axis=1)
     spots_list = spots_list.sort_values('Imps', ascending=False)
@@ -168,8 +165,7 @@ def find_best_fit(spots_lists, time_dict, id_list, demo_data_frame, current_spot
             if category_list[grouped_category.strip()] // len(time_dict) < 5:
                 compare_number = 4
             elif grouped_category.strip() == 'FOOD':
-                compare_number = category_list[grouped_category.strip()] // len(time_dict) + 3
-                print(compare_number)
+                compare_number = category_list[grouped_category.strip()] // len(time_dict) + 2
             else:
                 compare_number = category_list[grouped_category.strip()] // len(time_dict)
 

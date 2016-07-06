@@ -57,7 +57,7 @@ def get_hours_from_daypart(daypart):
     elif daypart == "Weekend":
         hour_options = options[:13]
     elif daypart == "Weekend Morning":
-        hour_options = options[:7]
+        hour_options = options[:6]
     elif daypart == "Weekend Day":
         hour_options = options[6:11]
     elif daypart == "Daytime":
@@ -79,7 +79,7 @@ def get_potential_from_daypart(daypart, default_potential, network):
     elif daypart == "Weekend":
         hour_options = default_potential[:13]
     elif daypart == "Weekend Morning":
-        hour_options = default_potential[:7]
+        hour_options = default_potential[:6]
     elif daypart == "Weekend Day":
         hour_options = default_potential[6:11]
     elif daypart == "Daytime":
@@ -102,7 +102,7 @@ def get_breaks_from_daypart(daypart, default_breaks, network):
     elif daypart == "Weekend":
         hour_options = default_breaks[:13]
     elif daypart == "Weekend Morning":
-        hour_options = default_breaks[:7]
+        hour_options = default_breaks[:6]
     elif daypart == "Weekend Day":
         hour_options = default_breaks[6:11]
     elif daypart == "Daytime":
