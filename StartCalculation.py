@@ -16,7 +16,8 @@ def start_calculation(daypart, ratings_path, spots_path, default_potential, day,
     for x in range(0, len(id_list)):
         spots_lists[x].append(str(id_list[x]) + '  ')
     spots_frame = preempt_credit_names(daypart, spots_path, network)
-    first = spots_frame[' Primary Demo'].unique()
+
+    first = spots_frame['Primary Demo'].unique()
     demo_frame = pd.DataFrame()
     demo_frame['ID'] = frame['ID']
     for demo_cats in first:
