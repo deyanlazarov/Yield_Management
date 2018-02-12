@@ -309,7 +309,7 @@ class Ui_main_window(object):
     # noinspection PyTypeChecker
     def retranslateUi(self, main_window):
         main_window.setWindowTitle(
-            QtGui.QApplication.translate("main_window", "OptiEdit 2.1.3", None, QtGui.QApplication.UnicodeUTF8))
+            QtGui.QApplication.translate("main_window", "OptiEdit 2.1.6", None, QtGui.QApplication.UnicodeUTF8))
         self.customizeButton.setText(
             QtGui.QApplication.translate("main_window", "Customize", None, QtGui.QApplication.UnicodeUTF8))
         self.optimizeButton.setText(
@@ -353,7 +353,7 @@ class Ui_main_window(object):
         self.pbar.setHidden(False)
         self.pbar.setValue(0)
         if self.daySelectCombo.currentIndex() < 5 and network % 2 == 0:
-            daypartList = ['Daytime', 'Early Fringe', 'Prime Access', 'Prime 2']
+            daypartList = ['Daytime', 'Prime Access', 'Prime 2', 'Early Fringe']
         elif self.daySelectCombo.currentIndex() < 5:
             daypartList = ['Morning', 'Daytime', 'Early Fringe', 'Prime Access', 'Prime 2']
         elif self.daySelectCombo.currentIndex() >= 5 and network % 2 == 0:

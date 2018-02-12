@@ -86,18 +86,21 @@ def account_for_vignettes(length, program):
 
 
 def prepare_frame(current_frame, daypart, network):
-    current_frame = current_frame[(current_frame.MG.isnull() == True) | (current_frame.MG == 'M')]
+    current_frame['MG'].fillna('', inplace=True)
+    current_frame = current_frame[(current_frame.MG == '') | (current_frame.MG == 'M')]
     current_frame = current_frame[(current_frame.CR != True)]
     current_frame = current_frame[(current_frame.Category == 'Vignette') | (current_frame.Category == "Commercial")]
-    current_frame = current_frame[(current_frame.Category == 'Commercial') | (current_frame['Program Ordered As'].str.startswith("Custom Vignettes (pp)"))]
-    list_of_desired_columns = ['Air Date', 'Spot ID', 'Advertiser', 'Hit Time', 'Start Time', 'End Time',
-                               'Length', ' Primary Demo', 'Unit Cost', 'Proposal Qtr. CPM', 'Primary Product Category',
-                               'Order #', 'Program Ordered As']
+    current_frame = current_frame[(current_frame.Category == 'Commercial') | (current_frame['Ordered As Title'].str.startswith("Custom Vignettes (pp)"))]
+    list_of_desired_columns = ['Air Date', 'Spot Id', 'Advertiser', 'Hit Time', 'Start Time', 'End Time',
+                               'Length', 'Primary Demo', 'Unit Cost', 'Primary Demo CPM', 'Primary Product Category',
+                               'Order', 'Ordered As Title']
+
+
 
     current_frame = current_frame[list_of_desired_columns]
     current_frame['Length'] = current_frame.apply(lambda x: convert_to_seconds(x['Length']), axis=1)
-    current_frame['Length'] = current_frame.apply(lambda x: account_for_vignettes(x['Length'], x['Program Ordered As']), axis=1)
-    dollar_conversion = ['Unit Cost', 'Proposal Qtr. CPM']
+    current_frame['Length'] = current_frame.apply(lambda x: account_for_vignettes(x['Length'], x['Ordered As Title']), axis=1)
+    dollar_conversion = ['Unit Cost', 'Primary Demo CPM']
     for dollars in dollar_conversion:
         current_frame[[dollars]] = current_frame[[dollars]].replace('[\$,]', '', regex=True).astype(float)
     military_column_list = ['Start Time', 'End Time']
@@ -108,7 +111,7 @@ def prepare_frame(current_frame, daypart, network):
     current_frame['Air Date'] = current_frame.apply(lambda x: convert_to_numeric_day(x['Air Date']), axis=1)
     current_frame = current_frame.drop(current_frame[current_frame['Start Time'] < 6].index)
     # current_frame = current_frame.drop(current_frame[pd.isnull(current_frame[' Primary Demo'])].index)
-    current_frame['Derived Imps'] = current_frame.apply(lambda x: derived_imps(x['Unit Cost'], x['Proposal Qtr. CPM']),
+    current_frame['Derived Imps'] = current_frame.apply(lambda x: derived_imps(x['Unit Cost'], x['Primary Demo CPM']),
                                                         axis=1)
     current_frame['Daypart'] = current_frame.apply(lambda x: assign_day_part(x['Air Date'], x['Start Time'], x['Hit Time'], network), axis=1)
     current_frame = current_frame.drop(current_frame[current_frame['Daypart'] != daypart].index)
@@ -116,15 +119,15 @@ def prepare_frame(current_frame, daypart, network):
     if daypart == 'Daytime':
         current_frame = current_frame.drop(current_frame[current_frame['Hit Time'] == '8'].index)
     current_frame.drop('Unit Cost', axis=1, inplace=True)
-    current_frame.drop('Proposal Qtr. CPM', axis=1, inplace=True)
+    current_frame.drop('Primary Demo CPM', axis=1, inplace=True)
     current_frame.reset_index(inplace=True, drop=True)
-    list_of_desired_columns = ['Air Date', 'Spot ID', 'Advertiser', 'Hit Time', 'Start Time', 'End Time',
-                               'Length', ' Primary Demo', 'Derived Imps', 'Primary Product Category', 'Daypart',
-                               'Order #']
+    list_of_desired_columns = ['Air Date', 'Spot Id', 'Advertiser', 'Hit Time', 'Start Time', 'End Time',
+                               'Length', 'Primary Demo', 'Derived Imps', 'Primary Product Category', 'Daypart',
+                               'Order']
     current_frame = current_frame[list_of_desired_columns]
     current_frame['Derived Imps'].fillna(0, inplace=True)
-    current_frame[' Primary Demo'].fillna('P25-54', inplace=True)
-    current_frame = pd.merge(current_frame, LiabilityClean.combine_liability_and_orders(network), left_on='Order #',
+    current_frame['Primary Demo'].fillna('P25-54', inplace=True)
+    current_frame = pd.merge(current_frame, LiabilityClean.combine_liability_and_orders(network), left_on='Order',
                              right_on='Order', how='left')
     current_frame.loc[pd.isnull(current_frame.Order), 'Imps'] = 888888
     current_frame.drop('Order', axis=1, inplace=True)
@@ -136,7 +139,6 @@ def prepare_frame(current_frame, daypart, network):
         df = pd.read_csv(file_, index_col=None, header=0)
         list_.append(df)
     products_file = pd.concat(list_)
-
 
 
     current_frame = pd.merge(current_frame, products_file, left_on='Primary Product Category',

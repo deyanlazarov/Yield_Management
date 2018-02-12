@@ -46,8 +46,8 @@ def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_li
                     current_imps = find_best_fit(spots_lists, time_dict, id_list, demo_frame, spots_list.iloc[x][7],
                                              spots_list.iloc[x][6],
                                              spots_list.iloc[x][2], spots_list.iloc[x][8], spots_list.iloc[x][1],
-                                             demo_list, False, spots_list.iloc[x][9], spots_list.iloc[x][12],
-                                             spots_list.iloc[x][4], spots_list.iloc[x][5], spots_list.iloc[x][14],
+                                             demo_list, False, spots_list.iloc[x][9], spots_list.iloc[x][11],
+                                             spots_list.iloc[x][4], spots_list.iloc[x][5], spots_list.iloc[x][13],
                                              category_list, breaks)
                     if isinstance(current_imps, str) and keep_imps:
                         unplaced_spots.append(current_imps)
@@ -73,8 +73,8 @@ def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_li
             current_imps = find_best_fit(spots_lists, time_dict, id_list, demo_frame, spots_list.iloc[x][7],
                                          spots_list.iloc[x][6],
                                          spots_list.iloc[x][2], spots_list.iloc[x][8], spots_list.iloc[x][1],
-                                         demo_list, False, spots_list.iloc[x][9], spots_list.iloc[x][12],
-                                         spots_list.iloc[x][4], spots_list.iloc[x][5], spots_list.iloc[x][14],
+                                         demo_list, False, spots_list.iloc[x][9], spots_list.iloc[x][11],
+                                         spots_list.iloc[x][4], spots_list.iloc[x][5], spots_list.iloc[x][13],
                                          category_list, breaks)
             if isinstance(current_imps, str) and keep_imps:
                 unplaced_spots.append(current_imps)
@@ -98,9 +98,13 @@ def place_spots(spots_lists, time_dict, id_list, spots_list, demo_frame, demo_li
             current_imps = find_best_fit(spots_lists, time_dict, id_list, demo_frame, spots_list.iloc[x][7],
                                          spots_list.iloc[x][6],
                                          spots_list.iloc[x][2], spots_list.iloc[x][8], spots_list.iloc[x][1],
-                                         demo_list, False, spots_list.iloc[x][9], spots_list.iloc[x][12],
-                                         spots_list.iloc[x][4], spots_list.iloc[x][5], spots_list.iloc[x][14],
+                                         demo_list, False, spots_list.iloc[x][9], spots_list.iloc[x][11],
+                                         spots_list.iloc[x][4], spots_list.iloc[x][5], spots_list.iloc[x][13],
                                          category_list, breaks)
+
+
+
+
             if isinstance(current_imps, str) and keep_imps:
                 unplaced_spots.append(current_imps)
             elif isinstance(current_imps, str):
@@ -127,7 +131,7 @@ def place_placed_spots(spots_frame, id_list, demo_frame, first, time_dict, spots
             else:
                 current_imps_deficit = 0
             spots_list[needed_location].append(
-                (spots_frame.iloc[x][2], spots_frame.iloc[x][9], spots_frame.iloc[x][14],
+                (spots_frame.iloc[x][2], spots_frame.iloc[x][9], spots_frame.iloc[x][13],
                  str(spots_frame.iloc[x][1]) + '#', spots_frame.iloc[x][6], str(round(current_imps_deficit, 2))))
             time_dict[int(spots_frame.iloc[x][3])] = time_dict[int(spots_frame.iloc[x][3])] - spots_frame.iloc[x][6]
             running_imps_total += current_imps_deficit
