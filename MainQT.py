@@ -11,6 +11,7 @@ from PySide import QtCore, QtGui
 from StartCalculation import start_calculation
 import configparser
 import os.path
+from LiabilityClean import combine_liability_and_orders
 
 config = configparser.ConfigParser()
 if os.path.isfile('user.ini'):
@@ -363,11 +364,13 @@ class Ui_main_window(object):
 
         total_returned = 0
 
+        liability_file = combine_liability_and_orders(network)
+
         for dayparts in daypartList:
             number_of_returned = start_calculation(dayparts, config['DEFAULT']['RATINGS_PATH'],
                                                    config['DEFAULT']['SPOTS_PATH'],
                                                    times,
-                                                   self.daySelectCombo.currentText(), network, breaks)
+                                                   self.daySelectCombo.currentText(), network, breaks, liability_file)
             total_returned += number_of_returned
             completed += (100 // len(daypartList))
             self.pbar.setValue(completed)

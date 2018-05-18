@@ -85,7 +85,7 @@ def account_for_vignettes(length, program):
     return length + modifier
 
 
-def prepare_frame(current_frame, daypart, network):
+def prepare_frame(current_frame, daypart, network, liability_file):
     current_frame['MG'].fillna('', inplace=True)
     current_frame = current_frame[(current_frame.MG == '') | (current_frame.MG == 'M')]
     current_frame = current_frame[(current_frame.CR != True)]
@@ -127,7 +127,8 @@ def prepare_frame(current_frame, daypart, network):
     current_frame = current_frame[list_of_desired_columns]
     current_frame['Derived Imps'].fillna(0, inplace=True)
     current_frame['Primary Demo'].fillna('P25-54', inplace=True)
-    current_frame = pd.merge(current_frame, LiabilityClean.combine_liability_and_orders(network), left_on='Order',
+
+    current_frame = pd.merge(current_frame, liability_file, left_on='Order',
                              right_on='Order', how='left')
     current_frame.loc[pd.isnull(current_frame.Order), 'Imps'] = 888888
 
@@ -149,14 +150,14 @@ def prepare_frame(current_frame, daypart, network):
     return current_frame
 
 
-def preempt_credit_names(daypart, path, network):
+def preempt_credit_names(daypart, path, network, liability_file):
     allFiles = glob.glob(path + "/*.csv")
     list_ = []
     for file_ in allFiles:
         df = pd.read_csv(file_, index_col=None, header=0)
         list_.append(df)
     pd.options.mode.chained_assignment = None
-    return prepare_frame(pd.concat(list_), daypart, network)
+    return prepare_frame(pd.concat(list_), daypart, network, liability_file)
 
 
 

@@ -9,13 +9,14 @@ from Start import place_placed_spots
 from Start import finish
 
 
-def start_calculation(daypart, ratings_path, spots_path, default_potential, day, network, default_breaks):
+def start_calculation(daypart, ratings_path, spots_path, default_potential, day, network, default_breaks, liability_file):
     frame = import_ratings(daypart, ratings_path, network, day)
     id_list = frame['ID'].tolist()
     spots_lists = [[] for i in repeat(None, len(id_list))]
     for x in range(0, len(id_list)):
         spots_lists[x].append(str(id_list[x]) + '  ')
-    spots_frame = preempt_credit_names(daypart, spots_path, network)
+
+    spots_frame = preempt_credit_names(daypart, spots_path, network, liability_file)
 
     first = spots_frame['Primary Demo'].unique()
     demo_frame = pd.DataFrame()
