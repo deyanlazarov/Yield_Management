@@ -5,7 +5,7 @@ import time
 from Preempt_Credit import assign_day_part
 
 
-def clean_ratings(ratings_frame, daypart, network, day):
+def clean_ratings(ratings_frame, daypart, network, day, date_string):
     ratings_frame.drop_duplicates('Nielsen Program', inplace=True)
     ratings_frame.reset_index(inplace=True, drop=True)
     ratings_frame['ID'] = ratings_frame.apply(lambda x: convert_to_military(x['Start Time']), axis=1)
@@ -28,7 +28,7 @@ def clean_ratings(ratings_frame, daypart, network, day):
     else:
         ratings_frame.drop([0, 1, 2, 3], inplace=True)
     ratings_frame.reset_index(inplace=True, drop=True)
-    if day == 'Saturday' or day == 'Sunday':
+    if day == 6 or day == 7:
         weekend = True
     else:
         weekend = False
@@ -47,12 +47,11 @@ def assign_daypart(weekend, current_hour, network):
         return assign_day_part(5, current_hour, current_hour, network)
 
 
-def import_ratings(daypart, path, network, day):
+def import_ratings(daypart, path, network, day, date_string):
     allFiles = glob.glob(path + "/*.csv")
     list_ = []
     for file_ in allFiles:
         df = pd.read_csv(file_, index_col=None, header=0)
         list_.append(df)
-    return clean_ratings(pd.concat(list_), daypart, network, day)
-
+    return clean_ratings(pd.concat(list_), daypart, network, day, date_string)
 

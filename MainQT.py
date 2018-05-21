@@ -12,6 +12,7 @@ from StartCalculation import start_calculation
 import configparser
 import os.path
 from LiabilityClean import combine_liability_and_orders
+import datetime
 
 config = configparser.ConfigParser()
 if os.path.isfile('user.ini'):
@@ -128,157 +129,12 @@ class Ui_main_window(object):
         self.networkSelectCombo.addItem("")
         self.networkSelectCombo.addItem("")
         self.networkSelectCombo.setCurrentIndex(starting_index)
-        self.daySelectCombo = QtGui.QComboBox(self.centralwidget)
-        self.daySelectCombo.setGeometry(QtCore.QRect(100, 170, 211, 51))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.WindowText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(170, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Light, brush)
-        brush = QtGui.QBrush(QtGui.QColor(212, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Midlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 127, 127))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Dark, brush)
-        brush = QtGui.QBrush(QtGui.QColor(113, 170, 170))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Mid, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Text, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.BrightText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.ButtonText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(170, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Window, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Shadow, brush)
-        brush = QtGui.QBrush(QtGui.QColor(212, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.AlternateBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 220))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.ToolTipBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.ToolTipText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(170, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Light, brush)
-        brush = QtGui.QBrush(QtGui.QColor(212, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Midlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 127, 127))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Dark, brush)
-        brush = QtGui.QBrush(QtGui.QColor(113, 170, 170))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Mid, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Text, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.BrightText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.ButtonText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(170, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Window, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Shadow, brush)
-        brush = QtGui.QBrush(QtGui.QColor(212, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.AlternateBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 220))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.ToolTipBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.ToolTipText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 127, 127))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(170, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Light, brush)
-        brush = QtGui.QBrush(QtGui.QColor(212, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Midlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 127, 127))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Dark, brush)
-        brush = QtGui.QBrush(QtGui.QColor(113, 170, 170))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Mid, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 127, 127))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Text, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.BrightText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 127, 127))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.ButtonText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(170, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(170, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Window, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Shadow, brush)
-        brush = QtGui.QBrush(QtGui.QColor(170, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.AlternateBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 220))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.ToolTipBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.ToolTipText, brush)
-        self.daySelectCombo.setPalette(palette)
         font = QtGui.QFont()
         font.setPointSize(15)
-        self.daySelectCombo.setFont(font)
-        self.daySelectCombo.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.daySelectCombo.setObjectName("daySelectCombo")
-        self.daySelectCombo.addItem("")
-        self.daySelectCombo.addItem("")
-        self.daySelectCombo.addItem("")
-        self.daySelectCombo.addItem("")
-        self.daySelectCombo.addItem("")
-        self.daySelectCombo.addItem("")
-        self.daySelectCombo.addItem("")
+        self.cal = QtGui.QCalendarWidget(self.centralwidget)
+        self.cal.setGridVisible(True)
+        self.cal.move(65, 128)
+        self.cal.setFirstDayOfWeek(QtCore.Qt.Monday)
         main_window.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(main_window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 400, 21))
@@ -309,8 +165,9 @@ class Ui_main_window(object):
 
     # noinspection PyTypeChecker
     def retranslateUi(self, main_window):
+        self.cal.setSelectedDate(QtCore.QDate.currentDate())
         main_window.setWindowTitle(
-            QtGui.QApplication.translate("main_window", "OptiEdit 2.1.6", None, QtGui.QApplication.UnicodeUTF8))
+            QtGui.QApplication.translate("main_window", "OptiEdit 2.2.0", None, QtGui.QApplication.UnicodeUTF8))
         self.customizeButton.setText(
             QtGui.QApplication.translate("main_window", "Customize", None, QtGui.QApplication.UnicodeUTF8))
         self.optimizeButton.setText(
@@ -321,20 +178,6 @@ class Ui_main_window(object):
                                                                             QtGui.QApplication.UnicodeUTF8))
         self.networkSelectCombo.setItemText(2, QtGui.QApplication.translate("main_window", "Travel Channel", None,
                                                                             QtGui.QApplication.UnicodeUTF8))
-        self.daySelectCombo.setItemText(0, QtGui.QApplication.translate("main_window", "Monday", None,
-                                                                        QtGui.QApplication.UnicodeUTF8))
-        self.daySelectCombo.setItemText(1, QtGui.QApplication.translate("main_window", "Tuesday", None,
-                                                                        QtGui.QApplication.UnicodeUTF8))
-        self.daySelectCombo.setItemText(2, QtGui.QApplication.translate("main_window", "Wednesday", None,
-                                                                        QtGui.QApplication.UnicodeUTF8))
-        self.daySelectCombo.setItemText(3, QtGui.QApplication.translate("main_window", "Thursday", None,
-                                                                        QtGui.QApplication.UnicodeUTF8))
-        self.daySelectCombo.setItemText(4, QtGui.QApplication.translate("main_window", "Friday", None,
-                                                                        QtGui.QApplication.UnicodeUTF8))
-        self.daySelectCombo.setItemText(5, QtGui.QApplication.translate("main_window", "Saturday", None,
-                                                                        QtGui.QApplication.UnicodeUTF8))
-        self.daySelectCombo.setItemText(6, QtGui.QApplication.translate("main_window", "Sunday", None,
-                                                                        QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(
             QtGui.QApplication.translate("main_window", "File", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSettings.setText(
@@ -353,11 +196,14 @@ class Ui_main_window(object):
         completed = 0
         self.pbar.setHidden(False)
         self.pbar.setValue(0)
-        if self.daySelectCombo.currentIndex() < 5 and network % 2 == 0:
+        if datetime.datetime(self.cal.selectedDate().year(), self.cal.selectedDate().month(),
+                             self.cal.selectedDate().day()).isoweekday() < 5 and network % 2 == 0:
             daypartList = ['Daytime', 'Prime Access', 'Prime 2', 'Early Fringe']
-        elif self.daySelectCombo.currentIndex() < 5:
+        elif datetime.datetime(self.cal.selectedDate().year(), self.cal.selectedDate().month(),
+                               self.cal.selectedDate().day()).isoweekday() < 5:
             daypartList = ['Morning', 'Daytime', 'Early Fringe', 'Prime Access', 'Prime 2']
-        elif self.daySelectCombo.currentIndex() >= 5 and network % 2 == 0:
+        elif datetime.datetime(self.cal.selectedDate().year(), self.cal.selectedDate().month(),
+                               self.cal.selectedDate().day()).isoweekday() >= 5 and network % 2 == 0:
             daypartList = ['Weekend', 'Prime 2']
         else:
             daypartList = ['Weekend Morning', 'Weekend Day', 'Prime Access', 'Prime 2']
@@ -366,17 +212,21 @@ class Ui_main_window(object):
 
         liability_file = combine_liability_and_orders(network)
 
+        dateString = str(self.cal.selectedDate().year()) + "-" + str(self.cal.selectedDate().month()) + "-" + str(self.cal.selectedDate().day())
+
         for dayparts in daypartList:
             number_of_returned = start_calculation(dayparts, config['DEFAULT']['RATINGS_PATH'],
                                                    config['DEFAULT']['SPOTS_PATH'],
-                                                   times,
-                                                   self.daySelectCombo.currentText(), network, breaks, liability_file)
+                                                   times, datetime.datetime(self.cal.selectedDate().year(),
+                                                                            self.cal.selectedDate().month(),
+                                                                            self.cal.selectedDate().day()).isoweekday(),
+                                                   network, breaks, liability_file, dateString)
             total_returned += number_of_returned
             completed += (100 // len(daypartList))
             self.pbar.setValue(completed)
 
         self.pbar.setHidden(True)
-        self.daySelectCombo.setHidden(True)
+        self.cal.setHidden(True)
         self.networkSelectCombo.setHidden(True)
 
         font = QtGui.QFont()
@@ -404,7 +254,6 @@ class CustomizeDialog(QtGui.QDialog):
         self.setWindowTitle('OptiEdit')
         loginLayout = QtGui.QGridLayout()
 
-
         self.boxes = []
         self.breaks = []
         self.labels = []
@@ -420,9 +269,9 @@ class CustomizeDialog(QtGui.QDialog):
             self.labels[x].setFixedWidth(15)
 
         for i in range(7, 24):
-            loginLayout.addWidget(self.labels[i - 7], i-7, 0)
-            loginLayout.addWidget(self.boxes[i - 7], i-7, 1)
-            loginLayout.addWidget(self.breaks[i - 7], i-7, 2)
+            loginLayout.addWidget(self.labels[i - 7], i - 7, 0)
+            loginLayout.addWidget(self.boxes[i - 7], i - 7, 1)
+            loginLayout.addWidget(self.breaks[i - 7], i - 7, 2)
 
         button = QtGui.QPushButton("OK")
         loginLayout.addWidget(button, 18, 2)
@@ -502,4 +351,3 @@ if __name__ == "__main__":
     ui.setupUi(main_window)
     main_window.show()
     sys.exit(app.exec_())
-

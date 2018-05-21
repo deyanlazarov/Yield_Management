@@ -3,6 +3,8 @@ import numpy as np
 import os
 import random
 from collections import Counter
+import calendar
+
 
 
 def assign_random(imps):
@@ -269,5 +271,5 @@ def finish(spots_lists, time_dict, id_list, spots_frame, demo_frame, demo_list, 
     final_spots = pd.DataFrame(spots_lists)
     final_spots = final_spots.transpose()
     final_spots['Unplaced'] = pd.Series(unplaced_spots[1])
-    final_spots.to_csv(daypart + ' ' + day + '.csv')
+    final_spots.to_csv(daypart + ' ' + calendar.day_name[day-1] + '.csv')
     return unplaced_spots[0], len(unplaced_spots[1])

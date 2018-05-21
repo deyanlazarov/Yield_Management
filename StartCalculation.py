@@ -9,8 +9,8 @@ from Start import place_placed_spots
 from Start import finish
 
 
-def start_calculation(daypart, ratings_path, spots_path, default_potential, day, network, default_breaks, liability_file):
-    frame = import_ratings(daypart, ratings_path, network, day)
+def start_calculation(daypart, ratings_path, spots_path, default_potential, day, network, default_breaks, liability_file, string_date):
+    frame = import_ratings(daypart, ratings_path, network, day, string_date)
     id_list = frame['ID'].tolist()
     spots_lists = [[] for i in repeat(None, len(id_list))]
     for x in range(0, len(id_list)):
