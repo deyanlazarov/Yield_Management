@@ -2,7 +2,7 @@ import pandas as pd
 import glob
 from datetime import datetime
 from math import ceil
-from GetDataFromServer import getDataForOrders
+from GetDataFromServer import get_data_for_orders
 
 
 def combine_liability_and_orders(network):
@@ -39,7 +39,7 @@ def combine_liability_and_orders(network):
     #     list_.append(df)
     # orders_file = pd.concat(list_)
 
-    orders_file = getDataForOrders(8).merge(liability_file, on="Deal", how="left")
+    orders_file = get_data_for_orders(8).merge(liability_file, on="Deal", how="left")
 
     orders_file.drop('Deal', axis=1, inplace=True)
     orders_file.columns = ['Order', 'Imps']

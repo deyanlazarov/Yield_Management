@@ -13,6 +13,7 @@ import configparser
 import os.path
 from LiabilityClean import combine_liability_and_orders
 import datetime
+from GetDataFromServer import get_data_for_ratings
 
 config = configparser.ConfigParser()
 if os.path.isfile('user.ini'):
@@ -209,10 +210,13 @@ class Ui_main_window(object):
             daypartList = ['Weekend Morning', 'Weekend Day', 'Prime Access', 'Prime 2']
 
         total_returned = 0
+        dateString = str(self.cal.selectedDate().year()) + "-" + str(self.cal.selectedDate().month()) + "-" + str(
+            self.cal.selectedDate().day())
 
         liability_file = combine_liability_and_orders(network)
+        ratings_file = get_data_for_ratings(network, dateString)
 
-        dateString = str(self.cal.selectedDate().year()) + "-" + str(self.cal.selectedDate().month()) + "-" + str(self.cal.selectedDate().day())
+
 
         for dayparts in daypartList:
             number_of_returned = start_calculation(dayparts, config['DEFAULT']['RATINGS_PATH'],
@@ -220,7 +224,7 @@ class Ui_main_window(object):
                                                    times, datetime.datetime(self.cal.selectedDate().year(),
                                                                             self.cal.selectedDate().month(),
                                                                             self.cal.selectedDate().day()).isoweekday(),
-                                                   network, breaks, liability_file, dateString)
+                                                   network, breaks, liability_file, dateString, ratings_file)
             total_returned += number_of_returned
             completed += (100 // len(daypartList))
             self.pbar.setValue(completed)
