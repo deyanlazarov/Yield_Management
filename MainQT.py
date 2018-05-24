@@ -14,6 +14,7 @@ import os.path
 from LiabilityClean import combine_liability_and_orders
 import datetime
 from GetDataFromServer import get_data_for_ratings
+import copy
 
 config = configparser.ConfigParser()
 if os.path.isfile('user.ini'):
@@ -217,14 +218,14 @@ class Ui_main_window(object):
         ratings_file = get_data_for_ratings(network, dateString)
 
 
-
         for dayparts in daypartList:
+            current_ratings = copy.deepcopy(ratings_file)
             number_of_returned = start_calculation(dayparts, config['DEFAULT']['RATINGS_PATH'],
                                                    config['DEFAULT']['SPOTS_PATH'],
                                                    times, datetime.datetime(self.cal.selectedDate().year(),
                                                                             self.cal.selectedDate().month(),
                                                                             self.cal.selectedDate().day()).isoweekday(),
-                                                   network, breaks, liability_file, dateString, ratings_file)
+                                                   network, breaks, liability_file, dateString, current_ratings)
             total_returned += number_of_returned
             completed += (100 // len(daypartList))
             self.pbar.setValue(completed)

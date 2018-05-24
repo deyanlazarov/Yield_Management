@@ -8,8 +8,7 @@ from Preempt_Credit import assign_day_part
 def clean_ratings(ratings_frame, daypart, network, day, date_string):
     ratings_frame.drop_duplicates('Nielsen Program', inplace=True)
     ratings_frame.reset_index(inplace=True, drop=True)
-    print(ratings_frame.dtypes)
-    # ratings_frame['ID'] = ratings_frame.apply(lambda x: convert_to_military(x['Start Time']), axis=1)
+    ratings_frame['ID'] = ratings_frame.apply(lambda x: convert_to_military(x['Start Time']), axis=1)
     ratings_frame.drop(
         ["Start Time", "End Time", "Network Program", "Nielsen Program", "Program Duration", "Commercial Duration",
          "HH"],
@@ -39,7 +38,7 @@ def clean_ratings(ratings_frame, daypart, network, day, date_string):
 
 
 def convert_to_military(current_time):
-    return time.strptime(current_time, "%H:%M:%S")[3]
+    return current_time.hour
 
 
 def assign_daypart(weekend, current_hour, network):
